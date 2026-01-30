@@ -1,2 +1,176 @@
-# EcoRoute
-CS 362 Group 12 Project
+# EcoRoute – Personalized Low-Impact Commute Planner
+
+**Team Members**  
+-  Tashfia Tabassum –  Frontend  
+-  Grunwald Jae – Backend & API Integration  
+-  Aiden Kitchen – Data Processing & Carbon Calculations  
+-  Jeffrey Sparrow – UI/UX & Testing  
+
+
+
+## Abstract (Executive Summary)
+
+EcoRoute is a web-based application that helps urban commuters in cities to find the most environmentally friendly way to travel by prioritizing the lowest carbon emissions while still considering time and cost. It combines public transit, walking, biking, and electric vehicle options using open routing APIs and simple personalization. Unlike Google Maps which focuses on speed, EcoRoute puts sustainability first and shows users exactly how much CO₂ they can save per trip — making green choices easy, visible, and rewarding.
+
+---
+
+## 1. Goal
+
+Empower daily commuters to reduce their personal carbon footprint from transportation without major lifestyle changes, especially in densely populated cities with mixed transport options.
+
+## 2. Current Practice & Limitations
+
+Most people use Google Maps, Uber, or local bus apps that optimize for fastest or cheapest routes.  
+Current limitations:  
+- Carbon emissions are rarely shown or prioritized  
+- Multi-modal journeys (bus + walk + bike) are poorly combined  
+- No personalization for users who are willing to trade a few minutes for much lower emissions  
+- Weather/air quality rarely influences active transport suggestions (walking/biking)
+
+## 3. Novelty
+
+- Carbon emissions as the **primary sorting criterion** (time & cost as secondary filters)  
+- Lightweight user preference learning (e.g. tolerance for "green delay")  
+- Real-time weather & air quality integration for safe/active transport decisions  
+- Simple gamification: personal carbon savings dashboard + badges
+
+## 4. Effects (Who Cares?)
+
+- **Users**: Feel good about measurable impact, build greener habits  
+- **Cities/Environment**: Small individual changes → collective emissions reduction  
+- **Future potential**: Data insights for urban planners (popular green corridors, bike lane demand)
+
+## 5. Technical Approach
+
+- **Frontend**: React (responsive web – mobile-first)  
+- **Backend**: Node.js + Express or Python FastAPI  
+- **Database**: PostgreSQL with PostGIS extension (for geospatial queries)  
+- **Routing & Maps**: OpenStreetMap + OpenRouteService API (free & good global coverage)  
+- **Transit Data**: GTFS static data + real-time where available  
+- **External APIs**: OpenWeatherMap (weather & air quality – free tier)  
+- **Personalization**: Simple scikit-learn model (clustering/regression) on user history  
+- **Deployment**: Vercel (frontend) + Render/Railway (backend)
+
+## 6. Main Risk & Mitigation
+
+**Risk**: Inconsistent quality/availability of public transit real-time data.
+**Mitigation**:  
+- Primary fallback: OpenRouteService (very reliable for walking/biking/car)  
+- Use static GTFS schedules when real-time unavailable  
+- Allow users to save & manually correct frequent routes  
+- Start with best-effort coverage for 1–2 benchmark cities
+
+## 7. Timeline
+- week 1 and 2 Project Planning & Requirements such as Finalize project scope and MVP features ,Define user personas and use cases, Assign clear team roles and responsibilities, Research APIs (routing, transit, weather, emissions data)
+- week 3 system disign including Design system architecture, Create wireframes for main UI screens route planner, results, dashboard, Define database schema users, trips, routes, Decide carbon calculation assumptions and formulas
+- week 4 Frontend & Backend Setup, Set up React project structure (mobile-first), Set up backend server (Express/FastAPI), Configure database and geospatial support, Test basic API connectivity (maps, routing)
+- week 5 Implement route search (start to destination) Integrate routing API for walking, biking, transit, Display route options on the frontend, Pass route data from backend to frontend
+- week 7 and 8 Personalization & Context Awareness, improve UI/UX based on early testing, Conduct usability testing with sample users, Finalize MVP features
+- week 9 Demo and finalize the project and make report
+---
+
+## Use Cases (MVP – Must have for core product)
+
+1. Use Case: Plan a Low-Carbon Commute
+**Actors**
+User (commuter in an urban area) these are primary users
+The online application EcoRoute these are secondary users
+**Triggers**
+When user clicks search interference to plan a trip
+**Preconditions**
+Users should have access to EcoRoute web app.
+Users should have internet access
+**Postconditions**
+Carbon impact information will be displayed for each route.
+The user can be able to select a route to view detailed directions.
+The user sees multiple commute routes ranked by lowest carbon emissions.
+**Steps to Follow (Success Scenario)**
+Start and destination locations are entered by the user.
+Time and green choices are chosen by the user.
+Route possibilities are generated by the system.
+The system determines and prioritizes routes based on CO2 emissions.
+Route results are shown by the system.
+For details, the user chooses a route.
+**Expectation and extension**
+Invalid input prompts correction.
+Internet issue connection prevents search.
+Routing data unavailable shows error message.
+Expectation could be user chooses a saved location. Routes re-rank based on preferences or weather.
+
+
+2. Use Case: Plan a route with context-aware weather suggestions
+- **Actors**
+User (commuter in an urban area) these are primary users
+The online application EcoRoute these are secondary users
+- **Triggers**
+When a user performs a route search and current weather/air quality data may affect travel modes along route.
+- **Preconditions**
+Users should have access to EcoRoute web app.
+Users should have internet access.
+EcoRoute has successfully generated route options.
+- **Postconditions**
+EcoRoute adjusts route recommendations based on current/forecast weather/air quality conditions.
+A context-aware warning is displayed to the user about conditions along route.
+Route ranking may shift based on conditions/modes of travel.
+- **Steps to Follow (Success Scenario)**
+User enters start and destination.
+User may optionally select departure or arrival time.
+EcoRoute queries weather and air quality data for conditions at specified location and time.
+EcoRoute applies context based rules to generate tailored route recommendations.
+EcoRoute displays context-aware route results with context-aware weather/AQI warnings, as applicable.
+User selects preferred route.
+- **Expectation and extension**
+Invalid input prompts correction.
+Internet issue connection prevents search.
+Routing or weather/AQI data unavailable shows error message.
+
+3. Use Case: Multi-modal route support(Aiden)
+- **Actors**
+User (commuter in an urban area)
+The online application EcoRoute
+- **Triggers**
+When a user clicks seaarch interference
+- **Preconditions**
+Users should have access to EcoRoute web app.
+Users should have internet access.
+User has a bike selected as an available option.
+There is no weather or condition impeading bike travel.
+- **Postconditions**
+Route displays the multi-modal route that includes bike and bus.
+- **Steps to Follow (Success Scenario)**
+Start and destination is selected by the user that partially has a bus in the route.
+Green choices and a time that coincides with a bus is selected.
+- **Extension**
+User selects conditions that creates a route that either only starts or ends with bicycling.
+- **Exceptions**
+Invalid input prompts correction.
+Internet issue connection prevents search.
+Routing data unavailable shows error message.
+
+## Nonfunctional Requirements
+1. **Performance and Latency (performance)**
+- The system shall return route recommendations within 3 seconds of the user submitting their destination.
+
+2. **Mobile-First (usibility)**
+- The system shall adhear to mobile-first design.
+
+3. **Reliability and Availability (Reliability)**
+- The system must have an uptime of at least 97%.
+
+## External Requirements
+1. The system shall rely on external APIs such as OpenRouteService, GTFS, OpenWeatherMap for routing, transit, and weather data. The application must relay with usage limits and licensing terms of all third-party APIs for credibility. The system should be deployable on standard cloud platforms and run on modern web browsers.
+
+## Stretch Goals (If time permits – in priority order)
+
+1. **Personalized Green Preference Learning**  
+   - Adapt suggestions based on user’s past choices (ML lite)  
+
+2. **Social / Gamification Features**  
+   - Weekly friend leaderboard for carbon saved  
+   - Shareable green-trip badges  
+
+3. **Calendar Integration**  
+   - Suggest green routes for upcoming events  
+
+4. **Offline Route Caching**  
+   - Basic offline support for common trips
