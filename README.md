@@ -47,7 +47,7 @@ Current limitations:
 
 ## 6. Software Architecture
 
-As EcoRoute is a multi-modal routing app. The **Layered Architecture** would probably work best. Because this architecture separates concerns between presentation, application logic, data processing and external services. By applying **Layered Architecture** it's possible to separates the complex data fetching (APIs) from the carbon calculation logic. This approach suits well for a small team. Where each components can build independently by team member.
+As EcoRoute is a multi-modal routing app, the **Layered Architecture** would probably work best. Because this architecture separates concerns between presentation, application logic, data processing and external services. By applying **Layered Architecture** it's possible to separate the complex data fetching (APIs) from the carbon calculation logic. This approach suits well for a small team. Where each components can build independently by team member.
 
 - **Major Components**:
     - **Frontend (React)**: Handles user input (start/end), map rendering, and the "Carbon Dashboard."
@@ -64,12 +64,12 @@ As EcoRoute is a multi-modal routing app. The **Layered Architecture** would pro
     - **Users**: userID, Name, Email, Green_Preference_Score.
     - **Saved Routes**: UserID, Start_Point (Geometry), End_Point (Geometry), Last_CO2_Score.
     - **Trip History**: UserID, Mode, Distance, Carbon_Saved.
-- **Architectural Assumtions**:
+- **Architectural Assumptions**:
   - User have consistent internet access to use EcoRoute.
   - External Service APIs are available and reliable.
   - Calculate approximate Carbon Emission for guidance.
 - **Architecture Decision and Alternatives**:
-  - **Decision 1**: **Layered Monolith Architecture** (Choosen)
+  - **Decision 1**: **Layered Monolith Architecture** (Chosen)
     - **Pros**: Easy for implementation, debugging.
     - **Cons**: Scaling of components independently is limited.
    - **Alternative**: Microservices Architecture
@@ -172,7 +172,7 @@ Team structure remains unchanged. Roles for each team member
 
 ## 11. Timeline
 - week 1 and 2 Project Planning & Requirements such as Finalize project scope and MVP features ,Define user personas and use cases, Assign clear team roles and responsibilities, Research APIs (routing, transit, weather, emissions data)
-- week 3 system disign including Design system architecture, Create wireframes for main UI screens route planner, results, dashboard, Define database schema users, trips, routes, Decide carbon calculation assumptions and formulas
+- week 3 system design including Design system architecture, Create wireframes for main UI screens route planner, results, dashboard, Define database schema users, trips, routes, Decide carbon calculation assumptions and formulas
 - week 4 Frontend & Backend Setup, Set up React project structure (mobile-first), Set up backend server (Express/FastAPI), Configure database and geospatial support, Test basic API connectivity (maps, routing)
 - week 5 Implement route search (start to destination) Integrate routing API for walking, biking, transit, Display route options on the frontend, Pass route data from backend to frontend
 - week 7 and 8 Personalization & Context Awareness, improve UI/UX based on early testing, Conduct usability testing with sample users, Finalize MVP features
@@ -186,7 +186,7 @@ Team structure remains unchanged. Roles for each team member
 User (commuter in an urban area) these are primary users
 The online application EcoRoute these are secondary users
 **Triggers**
-When user clicks search interference to plan a trip
+When user clicks search interface to plan a trip
 **Preconditions**
 Users should have access to EcoRoute web app.
 Users should have internet access
@@ -239,12 +239,12 @@ Routing or weather/AQI data unavailable shows error message.
 User (commuter in an urban area)
 The online application EcoRoute
 - **Triggers**
-When a user clicks seaarch interference
+When a user clicks seaarch interface
 - **Preconditions**
 Users should have access to EcoRoute web app.
 Users should have internet access.
 User has a bike selected as an available option.
-There is no weather or condition impeading bike travel.
+There is no weather or condition impeding bike travel.
 - **Postconditions**
 Route displays the multi-modal route that includes bike and bus.
 - **Steps to Follow (Success Scenario)**
@@ -261,14 +261,14 @@ Routing data unavailable shows error message.
 1. **Performance and Latency (performance)**
 - The system shall return route recommendations within 3 seconds of the user submitting their destination.
 
-2. **Mobile-First (usibility)**
-- The system shall adhear to mobile-first design.
+2. **Mobile-First (usability)**
+- The system shall adhere to mobile-first design.
 
 3. **Reliability and Availability (Reliability)**
 - The system must have an uptime of at least 97%.
 
 ## External Requirements
-1. The system shall rely on external APIs such as OpenRouteService, GTFS, OpenWeatherMap for routing, transit, and weather data. The application must relay with usage limits and licensing terms of all third-party APIs for credibility. The system should be deployable on standard cloud platforms and run on modern web browsers.
+1. The system shall rely on external APIs such as OpenRouteService, GTFS, OpenWeatherMap for routing, transit, and weather data. The application must comply with usage limits and licensing terms of all third-party APIs for credibility. The system should be deployable on standard cloud platforms and run on modern web browsers.
 
 ## Stretch Goals (If time permits – in priority order)
 
@@ -284,3 +284,4 @@ Routing data unavailable shows error message.
 
 4. **Offline Route Caching**  
    - Basic offline support for common trips
+
