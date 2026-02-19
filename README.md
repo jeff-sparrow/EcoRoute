@@ -159,7 +159,9 @@ Team structure remains unchanged. Roles for each team member
 ### v. Documentation
 
 - **User Guide** on how to plan route.
+    - [View User Guide](https://github.com/jeff-sparrow/EcoRoute/blob/main/docs/user-guide.md)
 - **Developer Guide**  where describing about the system setup and architecture.
+    - [View Developer Guide](https://github.com/jeff-sparrow/EcoRoute/blob/main/docs/developer-guide.md)
 
 ## 10. Main Risk & Mitigation
 
