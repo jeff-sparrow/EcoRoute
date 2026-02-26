@@ -169,7 +169,21 @@ Automated tests currently include:
 - Component rendering tests (App)
 - Loading state test (Home page)
 - Utility validation test (local storage service)
+How to add a new test
 
+To ensure consistency across the team, follow these steps to add tests:
+
+File Location: Create a new file in the src/__tests__/ directory or alongside the component being tested.
+
+Naming Convention: Name the file [fileName].test.tsx (for components) or [fileName].test.ts (for logic/utilities).
+
+Structure: * Use describe() to name the component/function.
+
+Use it() or test() to describe the specific behavior being verified.
+
+Local Verification: Run npm run test in your terminal to ensure the test passes locally before committing.
+
+CI Confirmation: Once pushed, check the GitHub Actions tab to ensure the build passes in the CI environment.
 ---
 
 ### Continuous Integration (CI)
@@ -343,4 +357,5 @@ Routing data unavailable shows error message.
 
 4. **Offline Route Caching**  
    - Basic offline support for common trips
+
 
