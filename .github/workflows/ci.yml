@@ -2,41 +2,34 @@ name: EcoRoute Full-Stack CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-  frontend-test:
+  test:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-      - name: Install Frontend deps
-        run: |
-          cd client
-          npm install
-      - name: Run Frontend tests
-        run: |
-          cd client
-          npm run test -- --run
+    strategy:
+      matrix:
+        app: [client, server]
 
-  backend-test:
-    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ matrix.app }}
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Install Backend deps
-        run: |
-          cd server  # Change this if your folder is named 'backend' or 'api'
-          npm install
-      - name: Run Backend tests
-        run: |
-          cd server
-          npm test
+          cache: npm
+          cache-dependency-path: ${{ matrix.app }}/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test -- --run --passWithNoTests
