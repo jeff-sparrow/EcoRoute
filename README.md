@@ -155,7 +155,64 @@ Team structure remains unchanged. Roles for each team member
 - **System Testing**: Perform an end-to-end search from "Corvallis" to "Portland" and verify the "Carbon Saved" badge appears.
 - **Usability Testing**: Jeffrey will lead a session with 3 non-CS students to see if they understand the "Green Delay" preference.
 - **Bug Tracking**: Bugs will be tracked with GitHub Issues.
+---
 
+### Test Automation Infrastructure
+
+For frontend we uses **Vitest** and **React Testing Library** for automated testing.
+
+Vitest integrates natively with Vite and also supports TypeScript. Moreover React Testing Library was selected because it focuses on testing components from the user's perspective.
+Automated tests currently include:
+
+Automated tests currently include:
+
+- Component rendering tests (App)
+- Loading state test (Home page)
+- Utility validation test (local storage service)
+
+---
+
+### Continuous Integration (CI)
+
+We use **GitHub Actions** for our CI service.
+
+Reason to choose GitHub Actions:
+
+- Integrates directly with  GitHub repository
+- free for public repositories
+- Requires minimal configuration
+- Automatically runs on push and pull requests
+
+---
+
+### CI Services Considered
+
+| Service        | Pros | Cons |
+|---------------|------|------|
+| GitHub Actions | Native GitHub integration, Free, Easy setup | YAML configuration required |
+| Travis CI      | Simple setup | Limited free tier |
+| CircleCI       | Powerful and fast | More complex configuration |
+
+GitHub Actions selected for its simplicity and direct integration with repository.
+
+---
+
+### CI Triggers
+
+CI pipeline run automatically when:
+
+- Code pushed to the `main` branch
+- A pull request is opened and targeting the `main` branch
+
+---
+
+### Tests Executed in CI
+
+Currently the following tests run automatically in CI:
+
+- Unit tests
+- Component rendering tests
+- Validation tests for utility functions
 ### v. Documentation
 
 - **User Guide** on how to plan route.
