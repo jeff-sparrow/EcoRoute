@@ -171,7 +171,7 @@ Automated tests currently include:
 - Utility validation test (local storage service)
 How to add a new test
 
-To ensure consistency across the team, follow these steps to add tests:
+### To ensure consistency across the team, follow these steps to add tests:
 
 File Location: Create a new file in the src/__tests__/ directory or alongside the component being tested.
 
@@ -357,5 +357,6 @@ Routing data unavailable shows error message.
 
 4. **Offline Route Caching**  
    - Basic offline support for common trips
+
 
 
