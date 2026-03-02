@@ -48,6 +48,47 @@ Server default URL: `http://localhost:4000`
 - `GET /api/users/:userId/trips`
 - `POST /api/users/:userId/trips`
 
+## How API integration works in this backend
+
+The backend follows a request -> processing -> response pattern for every endpoint:
+
+- **Request:** The frontend sends JSON to an API endpoint (for example, `POST /api/routes`).
+- **Validation and processing:** The backend validates request payloads with Zod, then runs business logic (for example, weather lookup, route ranking, and carbon calculations).
+- **Response:** The backend returns structured JSON with result data or a clear error payload.
+
+### Endpoint-specific behavior
+
+- **`GET /api/health`**
+  - Returns service status metadata (`status`, `service`, `timestamp`) for uptime checks.
+
+- **`POST /api/routes`**
+  - Expects route-planning data such as `start`, `end`, `preferredModes`, and `maxResults`.
+  - Validates the payload, gathers weather context, ranks low-carbon route options, and returns:
+    - `query` (validated request)
+    - `weather` (context used for ranking)
+    - `routes` (ranked options)
+    - `meta` (sorting and timestamp details)
+
+- **`POST /api/users`**
+  - Creates a user record and returns the new user object with a generated `userId`.
+
+- **`GET /api/users/:userId/dashboard`**
+  - Aggregates trip history into dashboard metrics (trip count, total carbon saved, badges).
+
+- **`GET/POST /api/users/:userId/saved-routes`**
+  - `GET` returns all saved routes for a user.
+  - `POST` validates and stores a new saved route, then returns the created route.
+
+- **`GET/POST /api/users/:userId/trips`**
+  - `GET` returns logged trips for a user.
+  - `POST` validates trip input, calculates `carbonSavedGrams`, stores the trip, and returns it.
+
+### Error handling
+
+- Invalid request payloads return **HTTP 400** with validation details.
+- Unknown users return **HTTP 404**.
+- Unexpected failures are passed to centralized error middleware for consistent JSON error responses.
+
 ## Example route request
 
 ```json
