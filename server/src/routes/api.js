@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { createRoutes } from "../controllers/routesController.js";
+import { testDbConnection } from "../data/db.js";
 import {
   createSavedRoute,
   createTrip,
@@ -11,8 +12,9 @@ import {
 
 const api = Router();
 
-api.get("/health", (_req, res) => {
-  res.json({ status: "ok", service: "ecoroute-server", timestamp: new Date().toISOString() });
+api.get("/health", async (_req, res) => {
+  const db = await testDbConnection();
+  res.json({ status: "ok", service: "ecoroute-server", db, timestamp: new Date().toISOString() });
 });
 
 api.post("/routes", createRoutes);

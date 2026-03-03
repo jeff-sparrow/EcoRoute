@@ -16,6 +16,15 @@ const getUserOrThrow = (userId) => {
 export const createUser = (req, res, next) => {
   try {
     const payload = createUserSchema.parse(req.body);
+    const duplicate = [...store.users.values()].find(
+      (existingUser) => existingUser.email.toLowerCase() === payload.email.toLowerCase(),
+    );
+    if (duplicate) {
+      const error = new Error("Email already exists.");
+      error.status = 409;
+      throw error;
+    }
+
     const userId = randomUUID();
     const user = {
       userId,
