@@ -12,4 +12,5 @@ export const env = {
   port: toNumber(process.env.PORT, 4000),
   orsApiKey: process.env.OPENROUTESERVICE_API_KEY || "",
   openWeatherApiKey: process.env.OPENWEATHERMAP_API_KEY || "",
+  databaseUrl: process.env.DATABASE_URL || "",
 };
