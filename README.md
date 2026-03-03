@@ -8,6 +8,46 @@
 EcoRoute is a web-based application that helps urban commuters in cities to find the most environmentally friendly way to travel by prioritizing the lowest carbon emissions while still considering time and cost. It combines public transit, walking, biking, and electric vehicle options using open routing APIs and simple personalization. Unlike Google Maps which focuses on speed, EcoRoute puts sustainability first and shows users exactly how much CO₂ they can save per trip — making green choices easy, visible, and rewarding.
 
 ---
+
+## Beta Release – Operational Use Case
+
+### Implemented End-to-End Flow
+
+The following functionality is currently operational:
+
+1. User enters start and destination coordinates.
+2. Frontend send POST request to the deployed backend:
+   https://ecoserver-3v5x.onrender.com/api/routes
+3. Express backend processes the request.
+4. Backend returns route data including:
+   - Transport mode
+   - Travel time
+   - Distance
+   - Estimated CO₂ emissions
+5. Frontend renders route results in the UI.
+
+
+---
+
+### How to Test the Beta Release
+
+1. Clone the repository:
+   ```
+   git clone https://github.com/jeff-sparrow/EcoRoute.git
+   cd EcoRoute/client
+   ```
+2. Install dependencies:
+   ```
+   npm install
+   ```
+3. Run frontend:
+   ```
+   npm run dev
+   ```
+4. Open:
+   http://localhost:5173
+
+Enter start and destination coordinates and click **Search**.
 ## 1. Goal
 
 Empower daily commuters to reduce their personal carbon footprint from transportation without major lifestyle changes, especially in densely populated cities with mixed transport options.
