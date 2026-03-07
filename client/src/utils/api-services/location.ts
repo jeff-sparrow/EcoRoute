@@ -2,8 +2,8 @@ import { AxiosError, type AxiosResponse } from "axios";
 import type { IRequestParamsOptions } from "./types";
 
 interface IRouteRequestBody {
-  start: [number, number];
-  end: [number, number];
+  start: { lat: number; lon: number; name?: string };
+  end: { lat: number; lon: number; name?: string };
   greenPreference: number;
 }
 
@@ -51,7 +51,7 @@ export async function getRoute<R = any>(
       {
         start: data.start,
         end: data.end,
-        greenPreference: data.greenPreference,
+        greenToleranceMinutes: data.greenPreference,
       },
       {
         headers: {
