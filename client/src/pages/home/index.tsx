@@ -65,13 +65,21 @@ export const Home = () => {
       const response = await getRoute({
         api: orsInstance,
         data: {
-          start: [location[1], location[0]] as [number, number],
-          end: [selectedLocation.lng, selectedLocation.lat],
+          start: {
+            lat: location[0],
+            lon: location[1],
+            name: "My Location",
+          },
+          end: {
+            lat: selectedLocation.lat,
+            lon: selectedLocation.lng,
+            name: selectedLocation.label || "Destination",
+          },
           greenPreference: greenPreference,
         },
       });
 
-      return response.data;
+      return response.data.routes;
     },
     enabled: false,
   });
@@ -80,7 +88,7 @@ export const Home = () => {
     if (!data || data.length === 0) return null;
 
     return data.reduce((prev, current) =>
-      current.score < prev.score ? current : prev,
+      current.rankingScore < prev.rankingScore ? current : prev,
     );
   }, [data]);
   const setVehicleMode = useStore((state) => state.setVehicleMode);
