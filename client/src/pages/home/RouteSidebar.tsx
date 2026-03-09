@@ -85,7 +85,7 @@ export const RouteSidebar = ({
   const steps = activeRoute?.segments?.[0]?.steps ?? [];
 
   const getRouteMeta = (route: IRouteData) => {
-    const sorted = [...routes].sort((a, b) => a.score - b.score);
+    const sorted = [...routes].sort((a, b) => a.rankingScore - b.rankingScore);
     const index = sorted.findIndex((r) => r.mode === route.mode);
 
     if (index === 0) {
@@ -261,10 +261,10 @@ export const RouteSidebar = ({
         <Stack>
           {vehicleMode && getVehicleIcon(vehicleMode)}
           <Typography sx={{ fontWeight: 700, fontSize: 15, color: "white" }}>
-            {`${activeRoute?.distance_km.toFixed(2) ?? "0.00"} km`}
+            {`${activeRoute?.distanceKm.toFixed(2) ?? "0.00"} km`}
           </Typography>
           <Typography sx={{ fontWeight: 400, fontSize: 15, color: "white" }}>
-            {formatDuration(activeRoute?.duration_min ?? 0)}
+            {formatDuration(activeRoute?.durationMinutes ?? 0)}
           </Typography>
         </Stack>
         <Box
@@ -281,7 +281,7 @@ export const RouteSidebar = ({
               EcoRoute
             </Typography>
             <Typography sx={{ fontWeight: 400, fontSize: 15, color: "white" }}>
-              {activeRoute?.carbon_kg.toFixed(2)} kg CO₂
+              {((activeRoute?.carbonGrams ?? 0) / 1000).toFixed(2)} kg CO₂
             </Typography>
           </Stack>
         </Box>
@@ -408,7 +408,7 @@ export const RouteSidebar = ({
                         color: meta.primaryTextColor,
                       }}
                     >
-                      {formatDistance(route.distance_km * 1000)}
+                      {formatDistance(route.distanceKm * 1000)}
                     </Typography>
 
                     <Typography
@@ -418,7 +418,7 @@ export const RouteSidebar = ({
                         color: meta.secondaryTextColor,
                       }}
                     >
-                      {formatDuration(route.duration_min)}
+                      {formatDuration(route.durationMinutes)}
                     </Typography>
                   </Stack>
 
@@ -430,7 +430,7 @@ export const RouteSidebar = ({
                         color: meta.secondaryTextColor,
                       }}
                     >
-                      {route.carbon_kg.toFixed(2)} kg CO₂
+                      {(route.carbonGrams / 1000).toFixed(2)} kg CO₂
                     </Typography>
                   </Stack>
                 </Box>
