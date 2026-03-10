@@ -1,27 +1,14 @@
-import { Box, CircularProgress } from "@mui/material";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { ROUTES } from "../constants/route-constant";
-import { useState } from "react";
+import { useStore } from "../store";
 
 export const AuthProvider = () => {
-  const [checkingAuth] = useState(false);
-  const [isAuthenticated] = useState(true);
+  const isAuthenticated = useStore((state) => state.isAuthenticated);
+  const location = useLocation();
 
-  if (checkingAuth)
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <CircularProgress size="6rem" color="success" />
-      </Box>
-    );
 
-  if (!isAuthenticated) return <Navigate to={ROUTES.LOG_IN} replace />;
+
+  if (!isAuthenticated) return <Navigate to={ROUTES.LOG_IN} state={{ from: location }} replace />;
 
   return <Outlet />;
 };
