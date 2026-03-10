@@ -4,6 +4,7 @@ import {
   createSavedRoute,
   createTrip,
   createUser,
+  loginUser,
   getUserDashboard,
   listSavedRoutes,
   listTrips,
@@ -18,6 +19,7 @@ api.get("/health", (_req, res) => {
 api.post("/routes", createRoutes);
 
 api.post("/users", createUser);
+api.post("/users/login", loginUser);
 api.get("/users/:userId/dashboard", getUserDashboard);
 api.get("/users/:userId/saved-routes", listSavedRoutes);
 api.post("/users/:userId/saved-routes", createSavedRoute);

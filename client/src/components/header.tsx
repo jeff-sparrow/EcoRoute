@@ -23,6 +23,8 @@ import { mapSearchLocationOptions } from "../helper/locations";
 import ecorouteLogo from "../assets/ecorouteLogo.png";
 import MenuIcon from "@mui/icons-material/Menu";
 import PersonIcon from "@mui/icons-material/Person";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../constants/route-constant";
 
 type SearchFormInputs = {
   searchName: string;
@@ -37,6 +39,10 @@ export const Header = () => {
   const greenPreference = useStore((state) => state.greenPreference);
   const setGreenPreference = useStore((state) => state.setGreenPreference);
   const setSelectedLocation = useStore((state) => state.setSelectedLocation);
+  const user = useStore((state) => state.user);
+  const logout = useStore((state) => state.logout);
+  const navigate = useNavigate();
+
   const { control, watch } = useForm<SearchFormInputs>({
     defaultValues: defaultLoginFormValues,
     mode: "onChange",
@@ -229,18 +235,49 @@ export const Header = () => {
           <IconButton>
             <MenuIcon sx={{ color: "#fff" }} fontSize="large" />
           </IconButton>
-          <Button
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              color: "#fff",
-              textTransform: "none",
-            }}
-          >
-            <PersonIcon sx={{ mr: 1 }} fontSize="large" />
-            Log in
-          </Button>
+          {user ? (
+            <Button
+              onClick={() => {
+                logout();
+                navigate(ROUTES.LOG_IN);
+              }}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                color: "#fff",
+                textTransform: "none",
+                minWidth: "64px",
+              }}
+            >
+              <Avatar 
+                sx={{ 
+                  width: 32, 
+                  height: 32, 
+                  mb: 0.5, 
+                  bgcolor: "rgba(255,255,255,0.2)",
+                  fontSize: "1rem" 
+                }}
+              >
+                {user.name.charAt(0).toUpperCase()}
+              </Avatar>
+              Logout
+            </Button>
+          ) : (
+            <Button
+              onClick={() => navigate(ROUTES.LOG_IN)}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                color: "#fff",
+                textTransform: "none",
+              }}
+            >
+              <PersonIcon sx={{ mr: 1 }} fontSize="large" />
+              Log in
+            </Button>
+          )}
         </Box>
       </Box>
     </Paper>

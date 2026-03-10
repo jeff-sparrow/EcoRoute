@@ -21,6 +21,10 @@ export const createUserSchema = z.object({
   greenPreferenceScore: z.number().min(0).max(100).default(50),
 });
 
+export const loginUserSchema = z.object({
+  email: z.string().trim().email(),
+});
+
 export const saveRouteSchema = z.object({
   label: z.string().trim().min(1).max(100),
   start: coordSchema,
