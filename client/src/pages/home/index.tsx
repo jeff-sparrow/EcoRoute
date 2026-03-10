@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Stack } from "@mui/material";
+import { Box, Button, CircularProgress, Stack, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
 import {
   MapContainer,
   TileLayer,
@@ -20,7 +20,7 @@ import orsInstance from "../../utils/api-services/orsInstance";
 import { axios } from "../../utils/api-services";
 import DirectionsIcon from "@mui/icons-material/Directions";
 import { RouteSidebar } from "./RouteSidebar";
-import type { IRouteData } from "../../models/location";
+import type { IRouteResponse } from "../../models/location";
 
 const FALLBACK_LOCATION: LatLngTuple = [44.0444197, -123.0717603];
 
@@ -58,8 +58,9 @@ export const Home = () => {
   const selectedLocation = useStore(selectSelectedLocation);
   const greenPreference = useStore((state) => state.greenPreference);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [isWarningDialogOpen, setIsWarningDialogOpen] = useState(false);
 
-  const { data, refetch, isFetching } = useQuery<IRouteData[]>({
+  const { data, refetch, isFetching } = useQuery<IRouteResponse>({
     queryKey: ["route", location, selectedLocation],
     queryFn: async () => {
       if (!selectedLocation) throw new Error("Selected location required");
@@ -81,15 +82,15 @@ export const Home = () => {
         },
       });
 
-      return response.data.routes;
+      return response.data;
     },
     enabled: false,
   });
 
   const lowestScoreRoute = useMemo(() => {
-    if (!data || data.length === 0) return null;
+    if (!data || data.routes.length === 0) return null;
 
-    return data.reduce((prev, current) =>
+    return data.routes.reduce((prev, current) =>
       current.rankingScore < prev.rankingScore ? current : prev,
     );
   }, [data]);
@@ -105,7 +106,7 @@ export const Home = () => {
   const activeRoute = useMemo(() => {
     if (!data || !vehicleMode) return null;
 
-    return data.find((route) => route.mode === vehicleMode) ?? null;
+    return data.routes.find((route) => route.mode === vehicleMode) ?? null;
   }, [data, vehicleMode]);
 
   const route: LatLngTuple[] = useMemo(() => {
@@ -140,7 +141,7 @@ export const Home = () => {
     setIsSideBarOpen(true);
   };
 
-  const handleGoNavigation = async () => {
+  const proceedWithNavigation = async () => {
     setIsNavigating(true);
     const user = useStore.getState().user;
     if (user && activeRoute) {
@@ -164,6 +165,14 @@ export const Home = () => {
     }
   };
 
+  const handleGoNavigation = async () => {
+    if (activeRoute && (activeRoute.mode === "walk" || activeRoute.mode === "bike") && data?.weather?.warnings?.length) {
+      setIsWarningDialogOpen(true);
+      return;
+    }
+    await proceedWithNavigation();
+  };
+
   const handleOnCloseRouteSidebar = () => {
     setIsSideBarOpen(false);
     clearSelectedLocation();
@@ -179,7 +188,7 @@ export const Home = () => {
           }}
         >
           <RouteSidebar
-            routes={data}
+            routes={data.routes}
             onClose={handleOnCloseRouteSidebar}
             startLabel="My Location"
             endLabel={selectedLocation?.label || ""}
@@ -256,6 +265,39 @@ export const Home = () => {
           </Box>
         )}
       </Box>
+      <Dialog
+        open={isWarningDialogOpen}
+        onClose={() => setIsWarningDialogOpen(false)}
+      >
+        <DialogTitle>Weather Warning</DialogTitle>
+        <DialogContent>
+          <DialogContentText color="error">
+            {data?.weather?.warnings?.map((w, i) => (
+              <Box key={i} component="span" display="block">
+                • {w}
+              </Box>
+            ))}
+          </DialogContentText>
+          <DialogContentText mt={2}>
+            Are you sure you want to proceed?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsWarningDialogOpen(false)} color="inherit">
+            Cancel
+          </Button>
+          <Button
+            onClick={() => {
+              setIsWarningDialogOpen(false);
+              proceedWithNavigation();
+            }}
+            color="error"
+            autoFocus
+          >
+            Proceed anyway
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Stack>
   );
 };
