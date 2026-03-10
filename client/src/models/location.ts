@@ -30,3 +30,17 @@ export interface IRouteData {
   carbonSavedVsCarGrams: number;
   segments: ISegment[];
 }
+
+export interface IWeatherContext {
+  source: string;
+  summary: string;
+  canBikeOrWalk: boolean;
+  severity: "low" | "medium" | "high" | "unknown";
+  warnings: string[];
+}
+
+export interface IRouteResponse {
+  query: any;
+  weather: IWeatherContext;
+  routes: IRouteData[];
+}
