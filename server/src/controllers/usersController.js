@@ -148,7 +148,7 @@ export const createSavedRoute = async (req, res, next) => {
       INSERT INTO saved_routes (
         route_id, user_id, label, start_geom, end_geom, last_co2_score
       ) VALUES (
-        $1, $2, $3, ST_MakePoint($4, $5), ST_MakePoint($6, $7), $8
+        $1, $2, $3, ST_SetSRID(ST_MakePoint($4, $5), 4326), ST_SetSRID(ST_MakePoint($6, $7), 4326), $8
       ) RETURNING route_id as "routeId", label, last_co2_score as "lastCo2Score", created_at as "createdAt"
     `, [
       routeId,
