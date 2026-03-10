@@ -11,6 +11,14 @@ const DAILY_NOTE_URL = {
   SEARCH_LOCATION: `/search`,
 };
 
+const getBaseUrl = () => {
+  let url = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
+  if (typeof window !== "undefined" && url.includes("localhost")) {
+    url = url.replace("localhost", window.location.hostname);
+  }
+  return url;
+};
+
 export async function searchLocation<R = any, D = any>(
   requestParamsOptions: IRequestParamsOptions<D>,
 ): Promise<AxiosResponse<R>> {
@@ -43,7 +51,7 @@ export async function getRoute<R = any>(
     return Promise.reject(new Error("Missing data parameter for getRoute"));
   }
 
-  const baseUrl = import.meta.env.VITE_BACKEND_URL;
+  const baseUrl = getBaseUrl();
 
   try {
     const response = await api.post(
@@ -86,7 +94,7 @@ export async function saveUserRoute<R = any>(
     return Promise.reject(new Error("Missing data parameter for saveUserRoute"));
   }
 
-  const baseUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+  const baseUrl = getBaseUrl();
 
   try {
     const response = await api.post(
@@ -125,7 +133,7 @@ export async function saveUserTrip<R = any>(
     return Promise.reject(new Error("Missing data parameter for saveUserTrip"));
   }
 
-  const baseUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+  const baseUrl = getBaseUrl();
 
   try {
     const response = await api.post(
@@ -158,7 +166,7 @@ export async function getSavedRoutes<R = any>(
     return Promise.reject(new Error("Missing data parameter for getSavedRoutes"));
   }
 
-  const baseUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+  const baseUrl = getBaseUrl();
 
   try {
     const response = await api.get(
@@ -190,7 +198,7 @@ export async function getUserTrips<R = any>(
     return Promise.reject(new Error("Missing data parameter for getUserTrips"));
   }
 
-  const baseUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+  const baseUrl = getBaseUrl();
 
   try {
     const response = await api.get(
