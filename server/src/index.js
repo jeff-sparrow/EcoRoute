@@ -1,6 +1,14 @@
+import dotenv from "dotenv";
 import app from "./app.js";
-import { env } from "./config/env.js";
+import { initDB } from "./data/db.js";
 
-app.listen(env.port, () => {
-  console.log(`EcoRoute backend running on http://localhost:${env.port}`);
+dotenv.config();
+
+const port = process.env.PORT || 4000;
+
+// Initialize the database before starting the server
+await initDB();
+
+app.listen(port, () => {
+  console.log(`EcoRoute API running at http://localhost:${port}`);
 });
