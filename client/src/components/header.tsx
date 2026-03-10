@@ -173,6 +173,7 @@ export const Header = () => {
     >
       <Box
         display="flex"
+        flexWrap="wrap"
         justifyContent="space-between"
         alignItems="center"
         gap={2}
@@ -184,14 +185,15 @@ export const Header = () => {
             justifyContent: "center",
             alignItems: "center",
             gap: 1,
+            order: 1,
           }}
         >
-          <Box component={"img"} src={ecorouteLogo} width={60} />
+          <Box component={"img"} src={ecorouteLogo} width={{ xs: 40, md: 60 }} />
           <Stack>
-            <Typography sx={{ fontWeight: 700, fontSize: 32, color: "white" }}>
+            <Typography sx={{ fontWeight: 700, fontSize: { xs: 24, md: 32 }, color: "white" }}>
               EcoRoute
             </Typography>
-            <Typography sx={{ fontWeight: 400, fontSize: 12, color: "white" }}>
+            <Typography sx={{ fontWeight: 400, fontSize: 12, color: "white", display: { xs: "none", md: "block" } }}>
               Personalized low-impact commute planner
             </Typography>
           </Stack>
@@ -200,13 +202,15 @@ export const Header = () => {
         <Box
           sx={{
             display: "flex",
+            flexDirection: { xs: "column", md: "row" },
             justifyContent: "center",
             alignItems: "center",
             gap: 2,
-            width: "60%",
+            width: { xs: "100%", md: "50%", lg: "60%" },
+            order: { xs: 3, md: 2 },
           }}
         >
-          <Box width="60%">
+          <Box width={{ xs: "100%", md: "60%" }}>
             <RhfAutocomplete
               control={control}
               freeSolo
@@ -215,13 +219,14 @@ export const Header = () => {
               options={searchedLocationOptions}
             />
           </Box>
-          <Box width="40%">
+          <Box width={{ xs: "100%", md: "40%" }} sx={{ display: "flex", justifyContent: "center" }}>
             <Box
               sx={{
                 backgroundColor: "#0E3A34",
                 borderRadius: "14px",
                 p: 1,
-                width: 320,
+                width: { xs: "100%", md: 320 },
+                maxWidth: 400,
               }}
             >
               <GradientSlider
@@ -274,6 +279,7 @@ export const Header = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            order: { xs: 2, md: 3 },
           }}
         >
           <IconButton onClick={handleMenuClick}>

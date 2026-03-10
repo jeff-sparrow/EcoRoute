@@ -160,14 +160,10 @@ export const RouteSidebar = ({
   return (
     <Box
       sx={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        width: 350,
+        width: "100%",
         height: "100%",
         backgroundColor: "#0FB37A",
         color: "white",
-        zIndex: 1500,
         display: "flex",
         flexDirection: "column",
         boxShadow: 3,

@@ -178,13 +178,16 @@ export const Home = () => {
     clearSelectedLocation();
   };
   return (
-    <Stack direction="row" height="100%">
+    <Stack direction={{ xs: "column-reverse", md: "row" }} height="100%">
       {data && (
         <Box
           sx={{
-            width: 350,
+            width: { xs: "100%", md: 350 },
             flexShrink: 0,
-            height: "100%",
+            height: { xs: "40%", md: "100%" },
+            overflowY: "auto",
+            zIndex: 1000,
+            backgroundColor: "white",
           }}
         >
           <RouteSidebar
@@ -202,6 +205,7 @@ export const Home = () => {
           width: "100%",
           inset: 0,
           flex: 1,
+          position: "relative",
         }}
       >
         <MapContainer
@@ -233,7 +237,7 @@ export const Home = () => {
         {selectedLocation && (
           <Box
             sx={{
-              position: "fixed",
+              position: "absolute",
               bottom: 20,
               left: "50%",
               transform: "translateX(-50%)",
