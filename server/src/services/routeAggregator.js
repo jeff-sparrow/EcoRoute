@@ -94,10 +94,7 @@ const calculateAdjustedScore = (route, fastestMinutes, greenToleranceMinutes) =>
 
 export const getRouteOptions = async ({ start, end, preferredModes, greenToleranceMinutes, weatherContext }) => {
   const modes = preferredModes?.length ? preferredModes : ["walk", "bike", "bus", "car", "ev"];
-  const filteredModes = weatherContext.canBikeOrWalk
-    ? modes
-    : modes.filter((mode) => mode !== "walk" && mode !== "bike");
-
+  const filteredModes = modes;
   const orsCandidates = await Promise.all(
     filteredModes.map(async (mode) => {
       if (mode === "bus") return null;
