@@ -8,17 +8,19 @@ import {
   Stack,
   styled,
   Typography,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import { RhfAutocomplete } from "./React-hook-form";
 import { useForm } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 import { QUERY_KEYS } from "../constants";
 import type { AxiosResponse } from "axios";
-import { searchLocation } from "../utils/api-services/location";
+import { searchLocation, getSavedRoutes } from "../utils/api-services/location";
 import { axios } from "../utils/api-services";
 import { useDebounce } from "../hooks";
 import { useStore } from "../store";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { mapSearchLocationOptions } from "../helper/locations";
 import ecorouteLogo from "../assets/ecorouteLogo.png";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -50,6 +52,48 @@ export const Header = () => {
 
   const query = watch("searchName") ?? "";
   const debouncedQuery = useDebounce(query, 400);
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const openMenu = Boolean(anchorEl);
+
+  const [savedRoutesAnchorEl, setSavedRoutesAnchorEl] = useState<null | HTMLElement>(null);
+  const openSavedRoutes = Boolean(savedRoutesAnchorEl);
+
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const { data: savedRoutes, isLoading: isRoutesLoading } = useQuery({
+    queryKey: ['savedRoutes', user?.userId],
+    queryFn: async () => {
+      if (!user?.userId) return [];
+      const response = await getSavedRoutes({
+        api: axios,
+        data: { userId: user.userId }
+      });
+      return response.data;
+    },
+    enabled: !!user?.userId && openSavedRoutes, // Only fetch when they actually open the popout
+  });
+
+  const handleSavedRouteClick = (route: any) => {
+    // 1. apply to map store
+    setSelectedLocation({
+      id: route.routeId,
+      label: route.label,
+      lat: route.end.lat,
+      lng: route.end.lon, // The destination sets the end pin
+    });
+    // For origin matching, the Leaflet setup in index.tsx uses the user's current geo-location or a generic fallback.
+    // If the Saved Route enforces a different origin, it requires adjusting the useUserLocation hook's authority, 
+    // but applying the end pin fulfills the immediate routing logic for the demo map center.
+    setSavedRoutesAnchorEl(null);
+    setAnchorEl(null);
+  };
 
   const lastSelectedRef = useRef<string | null>(null);
 
@@ -232,9 +276,57 @@ export const Header = () => {
             alignItems: "center",
           }}
         >
-          <IconButton>
+          <IconButton onClick={handleMenuClick}>
             <MenuIcon sx={{ color: "#fff" }} fontSize="large" />
           </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            open={openMenu}
+            onClose={handleMenuClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+          >
+            <MenuItem onClick={(e) => setSavedRoutesAnchorEl(e.currentTarget)}>Saved Routes</MenuItem>
+            <MenuItem onClick={() => { handleMenuClose(); navigate('/dashboard'); }}>Carbon Dashboard</MenuItem>
+          </Menu>
+
+          <Menu
+            anchorEl={savedRoutesAnchorEl}
+            open={openSavedRoutes}
+            onClose={() => setSavedRoutesAnchorEl(null)}
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'left',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+          >
+            {isRoutesLoading ? (
+              <MenuItem disabled>Loading...</MenuItem>
+            ) : !savedRoutes || savedRoutes.length === 0 ? (
+              <MenuItem disabled>No saved routes</MenuItem>
+            ) : (
+              savedRoutes.map((route: any) => (
+                <MenuItem 
+                  key={route.routeId}
+                  onClick={() => handleSavedRouteClick(route)}
+                >
+                  <Stack>
+                    <Typography variant="body1" fontWeight={500}>{route.label}</Typography>
+                    <Typography variant="caption" color="text.secondary">CO2: {route.lastCo2Score}g</Typography>
+                  </Stack>
+                </MenuItem>
+              ))
+            )}
+          </Menu>
           {user ? (
             <Button
               onClick={() => {
