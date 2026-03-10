@@ -36,6 +36,14 @@ export const RhfAutocomplete = <T extends FieldValues>({
       render={({ field: { onChange, value }, fieldState: { error } }) => (
         <FormControl variant={variant} size={size} fullWidth>
           <Autocomplete
+            disablePortal
+            slotProps={{
+              popper: {
+                sx: {
+                  zIndex: 2000,
+                },
+              },
+            }}
             freeSolo={freeSolo}
             options={options}
             size={size}

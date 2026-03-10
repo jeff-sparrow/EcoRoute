@@ -1,4 +1,12 @@
-import { Box, Typography, IconButton, Stack, Paper } from "@mui/material";
+import {
+  Box,
+  Typography,
+  IconButton,
+  Stack,
+  Paper,
+  Button,
+  Modal,
+} from "@mui/material";
 import TurnLeftIcon from "@mui/icons-material/TurnLeft";
 import TurnRightIcon from "@mui/icons-material/TurnRight";
 import NorthIcon from "@mui/icons-material/North";
@@ -16,6 +24,21 @@ import ecorouteLogo from "../../assets/ecorouteLogo.png";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useStore } from "../../store";
 import type { IRouteData } from "../../models/location";
+import { useEffect, useRef, useState } from "react";
+import {
+  RhfAutocomplete,
+  RhfTextField,
+} from "../../components/React-hook-form";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { QUERY_KEYS } from "../../constants";
+import type { AxiosError, AxiosResponse } from "axios";
+import { saveTrip, searchLocation } from "../../utils/api-services/location";
+import { axios } from "../../utils/api-services";
+import { mapSearchLocationOptions } from "../../helper/locations";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { useDebounce } from "../../hooks";
+import orsInstance from "../../utils/api-services/orsInstance";
+import backendInstance from "../../utils/api-services/backendInstance";
 
 const vehicleIconMap: Record<string, React.ReactNode> = {
   car: <DirectionsCarIcon fontSize="large" />,
@@ -72,17 +95,95 @@ const getVehicleIconBottom = (mode: string) => {
   return vehicleIconMapBottom[mode] ?? <HelpOutlineIcon fontSize="small" />;
 };
 
+type SearchFormInputs = {
+  searchName: string;
+};
+
+const defaultLoginFormValues: SearchFormInputs = {
+  searchName: "",
+};
+
 export const RouteSidebar = ({
   routes,
   onClose,
   startLabel,
   endLabel,
 }: RouteSidebarProps) => {
+  const [open, setOpen] = useState(false);
+
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  const [editingStart, setEditingStart] = useState(false);
+  const startLocation = useStore((state) => state.startLocation);
+  const selectedLocation = useStore((state) => state.selectedLocation);
+  const setStartLocation = useStore((state) => state.setStartLocation);
   const vehicleMode = useStore((state) => state.vehicleMode);
   const setVehicleMode = useStore((state) => state.setVehicleMode);
 
   const activeRoute = routes.find((r) => r.mode === vehicleMode);
   const steps = activeRoute?.segments?.[0]?.steps ?? [];
+
+  const { control, watch } = useForm<SearchFormInputs>({
+    defaultValues: defaultLoginFormValues,
+    mode: "onChange",
+  });
+
+  const {
+    control: tripControl,
+    handleSubmit,
+    reset,
+  } = useForm<ITripForm>({
+    defaultValues: {
+      trip_name: "",
+      start_name: "",
+      end_name: "",
+    },
+  });
+
+  const query = watch("searchName") ?? "";
+  const debouncedQuery = useDebounce(query, 400);
+
+  const lastSelectedRef = useRef<string | null>(null);
+
+  const { data: searchLocationData } = useQuery({
+    queryKey: [QUERY_KEYS.SEARCH_LOCATION, debouncedQuery],
+    queryFn: async () => {
+      const response: AxiosResponse = await searchLocation({
+        api: axios,
+        url: "/search",
+        data: {
+          q: debouncedQuery,
+          format: "json",
+          addressdetails: 1,
+          limit: 5,
+        },
+      });
+      return response.data;
+    },
+    enabled: !!debouncedQuery && debouncedQuery.length >= 3,
+    gcTime: Infinity,
+    staleTime: Infinity,
+  });
+
+  const searchedLocationOptions = mapSearchLocationOptions(searchLocationData);
+
+  useEffect(() => {
+    if (!query) return;
+    const matchedOption = searchedLocationOptions.find(
+      (opt: any) => opt.value === query,
+    );
+
+    if (!matchedOption) return;
+    if (lastSelectedRef.current === query) return;
+
+    lastSelectedRef.current = query;
+    setStartLocation({
+      id: matchedOption.id,
+      label: matchedOption.label,
+      lat: matchedOption.lat,
+      lng: matchedOption.lng,
+    });
+  }, [query, searchedLocationOptions, setStartLocation]);
 
   const getRouteMeta = (route: IRouteData) => {
     const sorted = [...routes].sort((a, b) => a.score - b.score);
@@ -118,6 +219,57 @@ export const RouteSidebar = ({
       secondaryTextColor: "black",
       labelColor: "black",
     };
+  };
+
+  const { mutate: saveTripMutation, isPending: isSavingTrip } = useMutation({
+    mutationFn: (data: any): Promise<AxiosResponse> =>
+      saveTrip({
+        api: backendInstance,
+        url: `${"30f50a4d-50aa-462a-849a-48ced1b82ae3"}`,
+        data: {
+          ...data,
+        },
+      }),
+    onSuccess: () => {
+      console.log("Trip saved successfully");
+      reset();
+    },
+    onError: (error: AxiosError) => {
+      console.error(
+        "Error saving trip:",
+        error.response?.data || error.message,
+      );
+    },
+  });
+
+  const onSubmit = (data: any) => {
+    const payload = {
+      user_id: "30f50a4d-50aa-462a-849a-48ced1b82ae3",
+
+      ...data,
+
+      start: startLocation
+        ? [startLocation.lat, startLocation.lng]
+        : (routes[0]?.coordinates?.[0] ?? [0, 0]),
+      end: selectedLocation
+        ? [selectedLocation.lng, selectedLocation.lat]
+        : (routes[0]?.coordinates?.[routes[0].coordinates.length - 1] ?? [
+            0, 0,
+          ]),
+      mode: activeRoute?.mode ?? "unknown",
+      distance_km: activeRoute?.distance_km ?? 0,
+      duration_minutes: activeRoute?.duration_min ?? 0,
+      route_co2_kg: activeRoute?.carbon_kg ?? 0,
+      coordinates: activeRoute?.coordinates ?? [],
+      segments: activeRoute?.segments ?? [],
+    };
+
+    saveTripMutation(payload);
+    handleClose();
+  };
+
+  const handleSave = async () => {
+    await handleSubmit(onSubmit)();
   };
 
   return (
@@ -179,36 +331,50 @@ export const RouteSidebar = ({
             gap: 1.5,
             px: 2,
             py: 1.5,
-
             borderRadius: "10px",
             backgroundColor: "white",
+            zIndex: 1500,
           }}
         >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "white",
-            }}
-          >
-            <LocationOnOutlinedIcon
-              fontSize="large"
-              sx={{ color: "#0FB37A" }}
-            />
-          </Box>
-          {/* Text */}
-          <Typography
-            variant="body1"
-            sx={{
-              fontWeight: 500,
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {startLabel}
-          </Typography>
+          <LocationOnOutlinedIcon fontSize="large" sx={{ color: "#0FB37A" }} />
+
+          {editingStart ? (
+            <Box width="100%">
+              <RhfAutocomplete
+                control={control}
+                freeSolo
+                name="searchName"
+                label="Where To?"
+                options={searchedLocationOptions}
+              />
+            </Box>
+          ) : (
+            <>
+              <Typography
+                sx={{
+                  flex: 1,
+                  fontWeight: 500,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {startLocation?.label || startLabel}
+              </Typography>
+
+              <Typography
+                sx={{
+                  fontSize: 12,
+                  color: "#0FB37A",
+                  cursor: "pointer",
+                  fontWeight: 600,
+                }}
+                onClick={() => setEditingStart(true)}
+              >
+                Change
+              </Typography>
+            </>
+          )}
         </Paper>
         <Paper
           elevation={2}
@@ -438,6 +604,63 @@ export const RouteSidebar = ({
             })}
         </Stack>
       </Box>
+
+      <Button color="success" variant="contained" onClick={handleOpen}>
+        Save Trip
+      </Button>
+
+      <Modal
+        open={open}
+        onClose={handleClose}
+        sx={{
+          zIndex: 2000,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+        }}
+      >
+        <Box
+          sx={{
+            width: 400,
+            bgcolor: "background.paper",
+            p: 3,
+            borderRadius: 2,
+            mx: "auto",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <RhfTextField
+            name="trip_name"
+            control={tripControl}
+            label="Trip Name"
+            fullWidth
+            required
+            margin="normal"
+          />
+
+          <RhfTextField
+            name="start_name"
+            control={tripControl}
+            label="Start Name"
+            fullWidth
+            required
+            margin="normal"
+          />
+
+          <RhfTextField
+            name="end_name"
+            control={tripControl}
+            label="End Name"
+            fullWidth
+            required
+            margin="normal"
+          />
+
+          <Button onClick={handleSave}>Save Trip</Button>
+        </Box>
+      </Modal>
     </Box>
   );
 };
@@ -458,3 +681,9 @@ const formatDuration = (minutes: number): string => {
 
   return `${hrs} hr ${mins} min`;
 };
+
+export interface ITripForm {
+  trip_name: string;
+  start_name: string;
+  end_name: string;
+}

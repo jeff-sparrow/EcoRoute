@@ -3,6 +3,8 @@ import {
   Box,
   Button,
   IconButton,
+  Menu,
+  MenuItem,
   Paper,
   Slider,
   Stack,
@@ -18,11 +20,14 @@ import { searchLocation } from "../utils/api-services/location";
 import { axios } from "../utils/api-services";
 import { useDebounce } from "../hooks";
 import { useStore } from "../store";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { mapSearchLocationOptions } from "../helper/locations";
 import ecorouteLogo from "../assets/ecorouteLogo.png";
 import MenuIcon from "@mui/icons-material/Menu";
 import PersonIcon from "@mui/icons-material/Person";
+import { ROUTES } from "../constants/route-constant";
+import { useNavigate } from "react-router-dom";
+import LogoutIcon from '@mui/icons-material/Logout';
 
 type SearchFormInputs = {
   searchName: string;
@@ -87,22 +92,53 @@ export const Header = () => {
     });
   }, [query, searchedLocationOptions, setSelectedLocation]);
 
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const navigate = useNavigate();
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    setAnchorEl(null);
+    navigate(ROUTES.LOG_IN);
+  };
+
   if (isSidebarOpen) {
     return (
-      <Box
-        sx={{
-          position: "fixed",
-          top: 16,
-          // left: 16,
-          right: 16,
-          zIndex: 1200,
-          borderRadius: 2,
-        }}
-      >
-        <Avatar sx={{ bgcolor: "#10B981" }}>
-          <PersonIcon sx={{ bgcolor: "#10B981" }} />
-        </Avatar>
-      </Box>
+      <>
+        <Box
+          sx={{
+            position: "fixed",
+            top: 16,
+            right: 16,
+            zIndex: 1200,
+            borderRadius: 2,
+          }}
+        >
+          <Avatar
+            onClick={handleClick}
+            sx={{
+              bgcolor: "#10B981",
+              cursor: "pointer",
+            }}
+          >
+            <PersonIcon />
+          </Avatar>
+        </Box>
+
+        <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+          <MenuItem onClick={handleLogout}>Log out</MenuItem>
+        </Menu>
+      </>
     );
   }
 
@@ -237,9 +273,9 @@ export const Header = () => {
               color: "#fff",
               textTransform: "none",
             }}
+            onClick={handleLogout}
           >
-            <PersonIcon sx={{ mr: 1 }} fontSize="large" />
-            Log in
+            <LogoutIcon sx={{ mr: 1 }} fontSize="large" />
           </Button>
         </Box>
       </Box>

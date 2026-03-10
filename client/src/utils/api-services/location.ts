@@ -7,8 +7,9 @@ interface IRouteRequestBody {
   greenPreference: number;
 }
 
-const DAILY_NOTE_URL = {
+const LOCATION_URL = {
   SEARCH_LOCATION: `/search`,
+  SAVE_TRIP: `api/trip/`,
 };
 
 export async function searchLocation<R = any, D = any>(
@@ -23,7 +24,7 @@ export async function searchLocation<R = any, D = any>(
   }
 
   try {
-    const requestUrl = url || DAILY_NOTE_URL.SEARCH_LOCATION;
+    const requestUrl = url || LOCATION_URL.SEARCH_LOCATION;
     const response = await api.get(requestUrl, { params: data });
     return response;
   } catch (error) {
@@ -60,6 +61,29 @@ export async function getRoute<R = any>(
       },
     );
 
+    return response;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return Promise.reject(error);
+    }
+    return Promise.reject(error);
+  }
+}
+
+export async function saveTrip<R = any, D = any>(
+  requestParamsOptions: IRequestParamsOptions<D>
+): Promise<AxiosResponse<R>> {
+  const { api, url, data } = requestParamsOptions;
+
+  if (!url) {
+    return Promise.reject(
+      new Error("Missing url parameter for saveTrip"),
+    );
+  }
+
+  try {
+    const requestUrl = LOCATION_URL.SAVE_TRIP.replace("id", url);
+    const response = await api.post(requestUrl, data);
     return response;
   } catch (error) {
     if (error instanceof AxiosError) {

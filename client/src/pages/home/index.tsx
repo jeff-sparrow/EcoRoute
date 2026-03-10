@@ -49,6 +49,7 @@ const ResizeMap = ({ trigger }: { trigger: any }) => {
 };
 
 export const Home = () => {
+  const startLocation = useStore((state) => state.startLocation);
   const setIsSideBarOpen = useStore((state) => state.setIsSidebarOpen);
   const clearSelectedLocation = useStore(
     (state) => state.clearSelectedLocation,
@@ -57,15 +58,25 @@ export const Home = () => {
   const selectedLocation = useStore(selectSelectedLocation);
   const greenPreference = useStore((state) => state.greenPreference);
 
+  const startCoords = startLocation
+    ? [startLocation.lng, startLocation.lat]
+    : [location[1], location[0]];
+
   const { data, refetch, isFetching } = useQuery<IRouteData[]>({
-    queryKey: ["route", location, selectedLocation],
+    queryKey: [
+      "route",
+      location,
+      selectedLocation,
+      startCoords,
+      greenPreference,
+    ],
     queryFn: async () => {
       if (!selectedLocation) throw new Error("Selected location required");
 
       const response = await getRoute({
         api: orsInstance,
         data: {
-          start: [location[1], location[0]] as [number, number],
+          start: startCoords as [number, number],
           end: [selectedLocation.lng, selectedLocation.lat],
           greenPreference: greenPreference,
         },
@@ -75,6 +86,12 @@ export const Home = () => {
     },
     enabled: false,
   });
+
+  useEffect(() => {
+    if (startLocation && selectedLocation) {
+      refetch();
+    }
+  }, [startLocation, refetch, selectedLocation]);
 
   const lowestScoreRoute = useMemo(() => {
     if (!data || data.length === 0) return null;
@@ -133,6 +150,10 @@ export const Home = () => {
     setIsSideBarOpen(false);
     clearSelectedLocation();
   };
+
+  const startPosition: LatLngTuple = startLocation
+    ? [startLocation.lat, startLocation.lng]
+    : location;
   return (
     <Stack direction="row" height="100%">
       {data && (
@@ -169,7 +190,7 @@ export const Home = () => {
           }}
         >
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <Marker position={location} />
+          <Marker position={startPosition} />
           {selectedLocation && (
             <>
               <Marker position={mapCenter} />

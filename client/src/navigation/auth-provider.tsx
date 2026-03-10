@@ -1,11 +1,12 @@
 import { Box, CircularProgress } from "@mui/material";
 import { Navigate, Outlet } from "react-router-dom";
 import { ROUTES } from "../constants/route-constant";
-import { useState } from "react";
 
 export const AuthProvider = () => {
-  const [checkingAuth] = useState(false);
-  const [isAuthenticated] = useState(true);
+  const token = localStorage.getItem("token");
+
+  const checkingAuth = false;
+  const isAuthenticated = !!token;
 
   if (checkingAuth)
     return (
@@ -21,7 +22,9 @@ export const AuthProvider = () => {
       </Box>
     );
 
-  if (!isAuthenticated) return <Navigate to={ROUTES.LOG_IN} replace />;
+  if (!isAuthenticated) {
+    return <Navigate to={ROUTES.LOG_IN} replace />;
+  }
 
   return <Outlet />;
 };
