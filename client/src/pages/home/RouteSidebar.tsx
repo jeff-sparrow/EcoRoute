@@ -1,4 +1,9 @@
-import { Box, Typography, IconButton, Stack, Paper } from "@mui/material";
+import { Box, Typography, IconButton, Stack, Paper, TextField } from "@mui/material";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import { useState } from "react";
+import { saveUserRoute } from "../../utils/api-services/location";
+import { axios } from "../../utils/api-services";
 import TurnLeftIcon from "@mui/icons-material/TurnLeft";
 import TurnRightIcon from "@mui/icons-material/TurnRight";
 import NorthIcon from "@mui/icons-material/North";
@@ -34,6 +39,7 @@ interface RouteSidebarProps {
   onClose: () => void;
   startLabel: string;
   endLabel: string;
+  isNavigating?: boolean;
 }
 
 const formatDistance = (meters: number) =>
@@ -77,12 +83,43 @@ export const RouteSidebar = ({
   onClose,
   startLabel,
   endLabel,
+  isNavigating,
 }: RouteSidebarProps) => {
   const vehicleMode = useStore((state) => state.vehicleMode);
   const setVehicleMode = useStore((state) => state.setVehicleMode);
+  const user = useStore((state) => state.user);
+  const [isSaving, setIsSaving] = useState(false);
+  const [savedRouteId, setSavedRouteId] = useState<string | null>(null);
+  const [routeName, setRouteName] = useState("");
 
   const activeRoute = routes.find((r) => r.mode === vehicleMode);
   const steps = activeRoute?.segments?.[0]?.steps ?? [];
+
+  const handleSaveRoute = async () => {
+    if (!user || !activeRoute) return;
+    try {
+      setIsSaving(true);
+      const startCoord = activeRoute.coordinates[0];
+      const endCoord = activeRoute.coordinates[activeRoute.coordinates.length - 1];
+      
+      const payload = {
+        label: routeName.trim() || `${startLabel} to ${endLabel}`,
+        start: { lat: startCoord[1], lon: startCoord[0], name: startLabel },
+        end: { lat: endCoord[1], lon: endCoord[0], name: endLabel },
+        lastCo2Score: activeRoute.carbonGrams,
+      };
+
+      const res = await saveUserRoute({
+        api: axios,
+        data: { userId: user.userId, payload }
+      });
+      setSavedRouteId(res.data.routeId);
+    } catch (e) {
+      console.error("Failed to save route", e);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const getRouteMeta = (route: IRouteData) => {
     const sorted = [...routes].sort((a, b) => a.rankingScore - b.rankingScore);
@@ -170,8 +207,10 @@ export const RouteSidebar = ({
         </IconButton>
       </Box>
 
-      <Stack spacing={2} mx={2}>
-        <Paper
+      {!isNavigating && (
+        <>
+          <Stack spacing={2} mx={2}>
+            <Paper
           elevation={2}
           sx={{
             display: "flex",
@@ -287,6 +326,42 @@ export const RouteSidebar = ({
         </Box>
       </Box>
 
+      {user && (
+        <Box sx={{ px: 2, mt: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <TextField
+              fullWidth
+              size="small"
+              placeholder={`${startLabel} to ${endLabel}`}
+              label={savedRouteId ? "Route Saved" : "Route Name (optional)"}
+              value={routeName}
+              onChange={(e) => setRouteName(e.target.value)}
+              disabled={!!savedRouteId || isSaving}
+              sx={{
+                bgcolor: "white",
+                borderRadius: 1,
+              }}
+            />
+            <IconButton
+              onClick={handleSaveRoute}
+              disabled={isSaving || !!savedRouteId}
+              sx={{
+                backgroundColor: "white",
+                color: savedRouteId ? "#0FB37A" : "#666",
+                "&:hover": { backgroundColor: "#f0f0f0" },
+                borderRadius: 1,
+                width: 40,
+                height: 40,
+              }}
+            >
+              {savedRouteId ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+            </IconButton>
+          </Box>
+        </Box>
+      )}
+        </>
+      )}
+
       <Box
         sx={{
           flex: 1,
@@ -377,9 +452,10 @@ export const RouteSidebar = ({
         })}
       </Box>
 
-      <Box sx={{ px: 2, py: 2 }}>
-        <Stack direction="column">
-          {routes
+      {!isNavigating && (
+        <Box sx={{ px: 2, py: 2 }}>
+          <Stack direction="column">
+            {routes
             .filter((route) => route.mode !== vehicleMode)
             .map((route) => {
               const meta = getRouteMeta(route);
@@ -436,8 +512,9 @@ export const RouteSidebar = ({
                 </Box>
               );
             })}
-        </Stack>
-      </Box>
+          </Stack>
+        </Box>
+      )}
     </Box>
   );
 };
