@@ -46,7 +46,7 @@ export const Dashboard = () => {
   const totalCarbonSavedKg = (totalCarbonSavedGrams / 1000).toFixed(2);
 
   return (
-    <Box sx={{ p: 4, pt: 14, height: "100%", backgroundColor: "#f5f7f6", overflowY: "auto" }}>
+    <Box sx={{ p: 4, height: "100%", backgroundColor: "#f5f7f6", overflowY: "auto" }}>
       <Stack spacing={4}>
         <Stack direction="row" alignItems="center" spacing={2}>
           <IconButton 
