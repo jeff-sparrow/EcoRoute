@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Stack, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
+import { Box, Button, CircularProgress, Stack, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Snackbar, Alert } from "@mui/material";
 import {
   MapContainer,
   TileLayer,
@@ -54,7 +54,8 @@ export const Home = () => {
   const clearSelectedLocation = useStore(
     (state) => state.clearSelectedLocation,
   );
-  const { location, loading } = useUserLocation(FALLBACK_LOCATION);
+  const { location, loading, usedFallback } = useUserLocation(FALLBACK_LOCATION);
+  const [fallbackSnackbarOpen, setFallbackSnackbarOpen] = useState(true);
   const selectedLocation = useStore(selectSelectedLocation);
   const greenPreference = useStore((state) => state.greenPreference);
   const [isNavigating, setIsNavigating] = useState(false);
@@ -302,6 +303,21 @@ export const Home = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={usedFallback && fallbackSnackbarOpen}
+        autoHideDuration={8000}
+        onClose={() => setFallbackSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setFallbackSnackbarOpen(false)}
+          severity="warning"
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          Could not access your location. Defaulting to Eugene, OR.
+        </Alert>
+      </Snackbar>
     </Stack>
   );
 };
