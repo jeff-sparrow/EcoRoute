@@ -22,25 +22,11 @@ export interface ISegment {
 
 export interface IRouteData {
   mode: string;
-  rankingScore: number;
+  score: number;
   coordinates: [number, number][];
-  distanceKm: number;
-  durationMinutes: number;
-  carbonGrams: number;
-  carbonSavedVsCarGrams: number;
+  distance_km: number;
+  duration_min: number;
+  carbon_kg: number;
+  carbon_saved_kg: number;
   segments: ISegment[];
-}
-
-export interface IWeatherContext {
-  source: string;
-  summary: string;
-  canBikeOrWalk: boolean;
-  severity: "low" | "medium" | "high" | "unknown";
-  warnings: string[];
-}
-
-export interface IRouteResponse {
-  query: any;
-  weather: IWeatherContext;
-  routes: IRouteData[];
 }

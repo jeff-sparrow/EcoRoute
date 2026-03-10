@@ -1,16 +1,15 @@
 import axios, { AxiosHeaders, type InternalAxiosRequestConfig } from "axios";
-import { getFromLocalStorage, STORAGE_KEY } from "../local-storage-service";
+import { STORAGE_KEY } from "../local-storage-service";
 
-const instance = axios.create({
-  // baseURL: import.meta.env.VITE_API_BASE_URL,
-  baseURL: "https://nominatim.openstreetmap.org",
+const backendInstance = axios.create({
+  baseURL: import.meta.env.VITE_BACKEND_URL || "http://localhost:3000",
 });
 
-instance.interceptors.request.use(
+backendInstance.interceptors.request.use(
   async (reqConfig: InternalAxiosRequestConfig) => {
     let { headers } = reqConfig;
 
-    const token = getFromLocalStorage(STORAGE_KEY.SEARCH);
+    const token = localStorage.getItem(STORAGE_KEY.ACCESS_TOKEN);
     if (token) {
       headers = new AxiosHeaders({
         ...headers,
@@ -24,13 +23,13 @@ instance.interceptors.request.use(
   },
 );
 
-instance.interceptors.response.use(
+backendInstance.interceptors.response.use(
   (response) => response,
 
   (error) => {
     const requestUrl = error.config?.url;
-    if (error.response?.status === 401 && requestUrl !== "/api/token/") {
-      localStorage.removeItem(STORAGE_KEY.SEARCH);
+    if (error.response?.status === 401 && requestUrl !== "/login") {
+      localStorage.removeItem(STORAGE_KEY.ACCESS_TOKEN);
       window.location.href = "/login";
     }
 
@@ -38,4 +37,4 @@ instance.interceptors.response.use(
   },
 );
 
-export default instance;
+export default backendInstance;

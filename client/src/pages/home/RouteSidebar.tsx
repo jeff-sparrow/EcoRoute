@@ -1,9 +1,12 @@
-import { Box, Typography, IconButton, Stack, Paper, TextField } from "@mui/material";
-import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
-import BookmarkIcon from "@mui/icons-material/Bookmark";
-import { useState } from "react";
-import { saveUserRoute } from "../../utils/api-services/location";
-import { axios } from "../../utils/api-services";
+import {
+  Box,
+  Typography,
+  IconButton,
+  Stack,
+  Paper,
+  Button,
+  Modal,
+} from "@mui/material";
 import TurnLeftIcon from "@mui/icons-material/TurnLeft";
 import TurnRightIcon from "@mui/icons-material/TurnRight";
 import NorthIcon from "@mui/icons-material/North";
@@ -21,6 +24,21 @@ import ecorouteLogo from "../../assets/ecorouteLogo.png";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useStore } from "../../store";
 import type { IRouteData } from "../../models/location";
+import { useEffect, useRef, useState } from "react";
+import {
+  RhfAutocomplete,
+  RhfTextField,
+} from "../../components/React-hook-form";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { QUERY_KEYS } from "../../constants";
+import type { AxiosError, AxiosResponse } from "axios";
+import { saveTrip, searchLocation } from "../../utils/api-services/location";
+import { axios } from "../../utils/api-services";
+import { mapSearchLocationOptions } from "../../helper/locations";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { useDebounce } from "../../hooks";
+import orsInstance from "../../utils/api-services/orsInstance";
+import backendInstance from "../../utils/api-services/backendInstance";
 
 const vehicleIconMap: Record<string, React.ReactNode> = {
   car: <DirectionsCarIcon fontSize="large" />,
@@ -39,7 +57,6 @@ interface RouteSidebarProps {
   onClose: () => void;
   startLabel: string;
   endLabel: string;
-  isNavigating?: boolean;
 }
 
 const formatDistance = (meters: number) =>
@@ -78,51 +95,102 @@ const getVehicleIconBottom = (mode: string) => {
   return vehicleIconMapBottom[mode] ?? <HelpOutlineIcon fontSize="small" />;
 };
 
+type SearchFormInputs = {
+  searchName: string;
+};
+
+const defaultLoginFormValues: SearchFormInputs = {
+  searchName: "",
+};
+
 export const RouteSidebar = ({
   routes,
   onClose,
   startLabel,
   endLabel,
-  isNavigating,
 }: RouteSidebarProps) => {
+  const [open, setOpen] = useState(false);
+
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  const [editingStart, setEditingStart] = useState(false);
+  const startLocation = useStore((state) => state.startLocation);
+  const selectedLocation = useStore((state) => state.selectedLocation);
+  const setStartLocation = useStore((state) => state.setStartLocation);
   const vehicleMode = useStore((state) => state.vehicleMode);
   const setVehicleMode = useStore((state) => state.setVehicleMode);
-  const user = useStore((state) => state.user);
-  const [isSaving, setIsSaving] = useState(false);
-  const [savedRouteId, setSavedRouteId] = useState<string | null>(null);
-  const [routeName, setRouteName] = useState("");
+  const userId = localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user") as string).id
+    : null;
+  console.log("USER ID:", userId);
 
   const activeRoute = routes.find((r) => r.mode === vehicleMode);
   const steps = activeRoute?.segments?.[0]?.steps ?? [];
 
-  const handleSaveRoute = async () => {
-    if (!user || !activeRoute) return;
-    try {
-      setIsSaving(true);
-      const startCoord = activeRoute.coordinates[0];
-      const endCoord = activeRoute.coordinates[activeRoute.coordinates.length - 1];
-      
-      const payload = {
-        label: routeName.trim() || `${startLabel} to ${endLabel}`,
-        start: { lat: startCoord[1], lon: startCoord[0], name: startLabel },
-        end: { lat: endCoord[1], lon: endCoord[0], name: endLabel },
-        lastCo2Score: activeRoute.carbonGrams,
-      };
+  const { control, watch } = useForm<SearchFormInputs>({
+    defaultValues: defaultLoginFormValues,
+    mode: "onChange",
+  });
 
-      const res = await saveUserRoute({
+  const {
+    control: tripControl,
+    handleSubmit,
+    reset,
+  } = useForm<ITripForm>({
+    defaultValues: {
+      trip_name: "",
+      start_name: "",
+      end_name: "",
+    },
+  });
+
+  const query = watch("searchName") ?? "";
+  const debouncedQuery = useDebounce(query, 400);
+
+  const lastSelectedRef = useRef<string | null>(null);
+
+  const { data: searchLocationData } = useQuery({
+    queryKey: [QUERY_KEYS.SEARCH_LOCATION, debouncedQuery],
+    queryFn: async () => {
+      const response: AxiosResponse = await searchLocation({
         api: axios,
-        data: { userId: user.userId, payload }
+        url: "/search",
+        data: {
+          q: debouncedQuery,
+          format: "json",
+          addressdetails: 1,
+          limit: 5,
+        },
       });
-      setSavedRouteId(res.data.routeId);
-    } catch (e) {
-      console.error("Failed to save route", e);
-    } finally {
-      setIsSaving(false);
-    }
-  };
+      return response.data;
+    },
+    enabled: !!debouncedQuery && debouncedQuery.length >= 3,
+    gcTime: Infinity,
+    staleTime: Infinity,
+  });
+
+  const searchedLocationOptions = mapSearchLocationOptions(searchLocationData);
+
+  useEffect(() => {
+    if (!query) return;
+    const matchedOption = searchedLocationOptions.find(
+      (opt: any) => opt.value === query,
+    );
+
+    if (!matchedOption) return;
+    if (lastSelectedRef.current === query) return;
+
+    lastSelectedRef.current = query;
+    setStartLocation({
+      id: matchedOption.id,
+      label: matchedOption.label,
+      lat: matchedOption.lat,
+      lng: matchedOption.lng,
+    });
+  }, [query, searchedLocationOptions, setStartLocation]);
 
   const getRouteMeta = (route: IRouteData) => {
-    const sorted = [...routes].sort((a, b) => a.rankingScore - b.rankingScore);
+    const sorted = [...routes].sort((a, b) => a.score - b.score);
     const index = sorted.findIndex((r) => r.mode === route.mode);
 
     if (index === 0) {
@@ -157,13 +225,69 @@ export const RouteSidebar = ({
     };
   };
 
+  const { mutate: saveTripMutation, isPending: isSavingTrip } = useMutation({
+    mutationFn: (data: any): Promise<AxiosResponse> =>
+      saveTrip({
+        api: backendInstance,
+        url: `${userId}`,
+        data: {
+          ...data,
+        },
+      }),
+    onSuccess: () => {
+      console.log("Trip saved successfully");
+      reset();
+    },
+    onError: (error: AxiosError) => {
+      console.error(
+        "Error saving trip:",
+        error.response?.data || error.message,
+      );
+    },
+  });
+
+  const onSubmit = (data: any) => {
+    const payload = {
+      user_id: userId,
+
+      ...data,
+
+      start: startLocation
+        ? [startLocation.lat, startLocation.lng]
+        : (routes[0]?.coordinates?.[0] ?? [0, 0]),
+      end: selectedLocation
+        ? [selectedLocation.lng, selectedLocation.lat]
+        : (routes[0]?.coordinates?.[routes[0].coordinates.length - 1] ?? [
+            0, 0,
+          ]),
+      mode: activeRoute?.mode ?? "unknown",
+      distance_km: activeRoute?.distance_km ?? 0,
+      duration_minutes: activeRoute?.duration_min ?? 0,
+      route_co2_kg: activeRoute?.carbon_kg ?? 0,
+      carbon_saved_kg: activeRoute?.carbon_saved_kg ?? 0,
+      // coordinates: activeRoute?.coordinates ?? [],
+      // segments: activeRoute?.segments ?? [],
+    };
+
+    saveTripMutation(payload);
+    handleClose();
+  };
+
+  const handleSave = async () => {
+    await handleSubmit(onSubmit)();
+  };
+
   return (
     <Box
       sx={{
-        width: "100%",
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: 350,
         height: "100%",
         backgroundColor: "#0FB37A",
         color: "white",
+        zIndex: 1500,
         display: "flex",
         flexDirection: "column",
         boxShadow: 3,
@@ -203,10 +327,8 @@ export const RouteSidebar = ({
         </IconButton>
       </Box>
 
-      {!isNavigating && (
-        <>
-          <Stack spacing={2} mx={2}>
-            <Paper
+      <Stack spacing={2} mx={2}>
+        <Paper
           elevation={2}
           sx={{
             display: "flex",
@@ -214,36 +336,50 @@ export const RouteSidebar = ({
             gap: 1.5,
             px: 2,
             py: 1.5,
-
             borderRadius: "10px",
             backgroundColor: "white",
+            zIndex: 1500,
           }}
         >
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "white",
-            }}
-          >
-            <LocationOnOutlinedIcon
-              fontSize="large"
-              sx={{ color: "#0FB37A" }}
-            />
-          </Box>
-          {/* Text */}
-          <Typography
-            variant="body1"
-            sx={{
-              fontWeight: 500,
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-            }}
-          >
-            {startLabel}
-          </Typography>
+          <LocationOnOutlinedIcon fontSize="large" sx={{ color: "#0FB37A" }} />
+
+          {editingStart ? (
+            <Box width="100%">
+              <RhfAutocomplete
+                control={control}
+                freeSolo
+                name="searchName"
+                label="Where To?"
+                options={searchedLocationOptions}
+              />
+            </Box>
+          ) : (
+            <>
+              <Typography
+                sx={{
+                  flex: 1,
+                  fontWeight: 500,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {startLocation?.label || startLabel}
+              </Typography>
+
+              <Typography
+                sx={{
+                  fontSize: 12,
+                  color: "#0FB37A",
+                  cursor: "pointer",
+                  fontWeight: 600,
+                }}
+                onClick={() => setEditingStart(true)}
+              >
+                Change
+              </Typography>
+            </>
+          )}
         </Paper>
         <Paper
           elevation={2}
@@ -296,10 +432,10 @@ export const RouteSidebar = ({
         <Stack>
           {vehicleMode && getVehicleIcon(vehicleMode)}
           <Typography sx={{ fontWeight: 700, fontSize: 15, color: "white" }}>
-            {`${activeRoute?.distanceKm.toFixed(2) ?? "0.00"} km`}
+            {`${activeRoute?.distance_km.toFixed(2) ?? "0.00"} km`}
           </Typography>
           <Typography sx={{ fontWeight: 400, fontSize: 15, color: "white" }}>
-            {formatDuration(activeRoute?.durationMinutes ?? 0)}
+            {formatDuration(activeRoute?.duration_min ?? 0)}
           </Typography>
         </Stack>
         <Box
@@ -316,47 +452,11 @@ export const RouteSidebar = ({
               EcoRoute
             </Typography>
             <Typography sx={{ fontWeight: 400, fontSize: 15, color: "white" }}>
-              {((activeRoute?.carbonGrams ?? 0) / 1000).toFixed(2)} kg CO₂
+              {activeRoute?.carbon_kg.toFixed(2)} kg CO₂
             </Typography>
           </Stack>
         </Box>
       </Box>
-
-      {user && (
-        <Box sx={{ px: 2, mt: 1 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <TextField
-              fullWidth
-              size="small"
-              placeholder={`${startLabel} to ${endLabel}`}
-              label={savedRouteId ? "Route Saved" : "Route Name (optional)"}
-              value={routeName}
-              onChange={(e) => setRouteName(e.target.value)}
-              disabled={!!savedRouteId || isSaving}
-              sx={{
-                bgcolor: "white",
-                borderRadius: 1,
-              }}
-            />
-            <IconButton
-              onClick={handleSaveRoute}
-              disabled={isSaving || !!savedRouteId}
-              sx={{
-                backgroundColor: "white",
-                color: savedRouteId ? "#0FB37A" : "#666",
-                "&:hover": { backgroundColor: "#f0f0f0" },
-                borderRadius: 1,
-                width: 40,
-                height: 40,
-              }}
-            >
-              {savedRouteId ? <BookmarkIcon /> : <BookmarkBorderIcon />}
-            </IconButton>
-          </Box>
-        </Box>
-      )}
-        </>
-      )}
 
       <Box
         sx={{
@@ -448,10 +548,9 @@ export const RouteSidebar = ({
         })}
       </Box>
 
-      {!isNavigating && (
-        <Box sx={{ px: 2, py: 2 }}>
-          <Stack direction="column">
-            {routes
+      <Box sx={{ px: 2, py: 2 }}>
+        <Stack direction="column">
+          {routes
             .filter((route) => route.mode !== vehicleMode)
             .map((route) => {
               const meta = getRouteMeta(route);
@@ -480,7 +579,7 @@ export const RouteSidebar = ({
                         color: meta.primaryTextColor,
                       }}
                     >
-                      {formatDistance(route.distanceKm * 1000)}
+                      {formatDistance(route.distance_km * 1000)}
                     </Typography>
 
                     <Typography
@@ -490,7 +589,7 @@ export const RouteSidebar = ({
                         color: meta.secondaryTextColor,
                       }}
                     >
-                      {formatDuration(route.durationMinutes)}
+                      {formatDuration(route.duration_min)}
                     </Typography>
                   </Stack>
 
@@ -502,15 +601,71 @@ export const RouteSidebar = ({
                         color: meta.secondaryTextColor,
                       }}
                     >
-                      {(route.carbonGrams / 1000).toFixed(2)} kg CO₂
+                      {route.carbon_kg.toFixed(2)} kg CO₂
                     </Typography>
                   </Stack>
                 </Box>
               );
             })}
-          </Stack>
+        </Stack>
+      </Box>
+
+      <Button color="success" variant="contained" onClick={handleOpen}>
+        Save Trip
+      </Button>
+
+      <Modal
+        open={open}
+        onClose={handleClose}
+        sx={{
+          zIndex: 2000,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+        }}
+      >
+        <Box
+          sx={{
+            width: 400,
+            bgcolor: "background.paper",
+            p: 3,
+            borderRadius: 2,
+            mx: "auto",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <RhfTextField
+            name="trip_name"
+            control={tripControl}
+            label="Trip Name"
+            fullWidth
+            required
+            margin="normal"
+          />
+
+          <RhfTextField
+            name="start_name"
+            control={tripControl}
+            label="Start Name"
+            fullWidth
+            required
+            margin="normal"
+          />
+
+          <RhfTextField
+            name="end_name"
+            control={tripControl}
+            label="End Name"
+            fullWidth
+            required
+            margin="normal"
+          />
+
+          <Button onClick={handleSave}>Save Trip</Button>
         </Box>
-      )}
+      </Modal>
     </Box>
   );
 };
@@ -531,3 +686,9 @@ const formatDuration = (minutes: number): string => {
 
   return `${hrs} hr ${mins} min`;
 };
+
+export interface ITripForm {
+  trip_name: string;
+  start_name: string;
+  end_name: string;
+}

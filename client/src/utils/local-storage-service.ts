@@ -13,5 +13,6 @@ export function removeFromLocalStorage(key: string) {
 }
 
 export const STORAGE_KEY = {
-  ACCESS_TOKEN: "accessToken",
+  ACCESS_TOKEN: "token",
+  SEARCH: "search",
 };

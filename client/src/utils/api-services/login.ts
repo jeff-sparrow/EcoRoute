@@ -2,7 +2,7 @@ import { AxiosError, type AxiosResponse } from "axios";
 import type { IRequestParamsOptions } from "./types";
 
 const LOGIN_URL = {
-  LOGIN: `/api/token/`,
+  LOGIN: `/api/login`,
 };
 
 export async function getLoginService<R = any, D = any>(

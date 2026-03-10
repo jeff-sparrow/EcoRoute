@@ -3,20 +3,20 @@ import {
   Box,
   Button,
   IconButton,
+  Menu,
+  MenuItem,
   Paper,
   Slider,
   Stack,
   styled,
   Typography,
-  Menu,
-  MenuItem,
 } from "@mui/material";
 import { RhfAutocomplete } from "./React-hook-form";
 import { useForm } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 import { QUERY_KEYS } from "../constants";
 import type { AxiosResponse } from "axios";
-import { searchLocation, getSavedRoutes } from "../utils/api-services/location";
+import { searchLocation } from "../utils/api-services/location";
 import { axios } from "../utils/api-services";
 import { useDebounce } from "../hooks";
 import { useStore } from "../store";
@@ -25,8 +25,9 @@ import { mapSearchLocationOptions } from "../helper/locations";
 import ecorouteLogo from "../assets/ecorouteLogo.png";
 import MenuIcon from "@mui/icons-material/Menu";
 import PersonIcon from "@mui/icons-material/Person";
-import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../constants/route-constant";
+import { Link, useNavigate } from "react-router-dom";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 type SearchFormInputs = {
   searchName: string;
@@ -41,10 +42,6 @@ export const Header = () => {
   const greenPreference = useStore((state) => state.greenPreference);
   const setGreenPreference = useStore((state) => state.setGreenPreference);
   const setSelectedLocation = useStore((state) => state.setSelectedLocation);
-  const user = useStore((state) => state.user);
-  const logout = useStore((state) => state.logout);
-  const navigate = useNavigate();
-
   const { control, watch } = useForm<SearchFormInputs>({
     defaultValues: defaultLoginFormValues,
     mode: "onChange",
@@ -52,48 +49,6 @@ export const Header = () => {
 
   const query = watch("searchName") ?? "";
   const debouncedQuery = useDebounce(query, 400);
-
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const openMenu = Boolean(anchorEl);
-
-  const [savedRoutesAnchorEl, setSavedRoutesAnchorEl] = useState<null | HTMLElement>(null);
-  const openSavedRoutes = Boolean(savedRoutesAnchorEl);
-
-  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const { data: savedRoutes, isLoading: isRoutesLoading } = useQuery({
-    queryKey: ['savedRoutes', user?.userId],
-    queryFn: async () => {
-      if (!user?.userId) return [];
-      const response = await getSavedRoutes({
-        api: axios,
-        data: { userId: user.userId }
-      });
-      return response.data;
-    },
-    enabled: !!user?.userId && openSavedRoutes, // Only fetch when they actually open the popout
-  });
-
-  const handleSavedRouteClick = (route: any) => {
-    // 1. apply to map store
-    setSelectedLocation({
-      id: route.routeId,
-      label: route.label,
-      lat: route.end.lat,
-      lng: route.end.lon, // The destination sets the end pin
-    });
-    // For origin matching, the Leaflet setup in index.tsx uses the user's current geo-location or a generic fallback.
-    // If the Saved Route enforces a different origin, it requires adjusting the useUserLocation hook's authority, 
-    // but applying the end pin fulfills the immediate routing logic for the demo map center.
-    setSavedRoutesAnchorEl(null);
-    setAnchorEl(null);
-  };
 
   const lastSelectedRef = useRef<string | null>(null);
 
@@ -137,22 +92,63 @@ export const Header = () => {
     });
   }, [query, searchedLocationOptions, setSelectedLocation]);
 
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const navigate = useNavigate();
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    setAnchorEl(null);
+    navigate(ROUTES.LOG_IN);
+  };
+
   if (isSidebarOpen) {
     return (
-      <Box
-        sx={{
-          position: "fixed",
-          top: 16,
-          // left: 16,
-          right: 16,
-          zIndex: 1200,
-          borderRadius: 2,
-        }}
-      >
-        <Avatar sx={{ bgcolor: "#10B981" }}>
-          <PersonIcon sx={{ bgcolor: "#10B981" }} />
-        </Avatar>
-      </Box>
+      <>
+        <Box
+          sx={{
+            position: "fixed",
+            top: 16,
+            right: 16,
+            zIndex: 1200,
+            borderRadius: 2,
+          }}
+        >
+          <Avatar
+            onClick={handleClick}
+            sx={{
+              bgcolor: "#10B981",
+              cursor: "pointer",
+            }}
+          >
+            <PersonIcon />
+          </Avatar>
+        </Box>
+
+        <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+          <MenuItem onClick={handleLogout}>Log out</MenuItem>
+          <MenuItem>
+            <Button component={Link} to="/history">
+              History
+            </Button>
+          </MenuItem>
+          <MenuItem>
+            <Button component={Link} to="/">
+              Home
+            </Button>
+          </MenuItem>
+        </Menu>
+      </>
     );
   }
 
@@ -173,7 +169,6 @@ export const Header = () => {
     >
       <Box
         display="flex"
-        flexWrap="wrap"
         justifyContent="space-between"
         alignItems="center"
         gap={2}
@@ -185,15 +180,14 @@ export const Header = () => {
             justifyContent: "center",
             alignItems: "center",
             gap: 1,
-            order: 1,
           }}
         >
-          <Box component={"img"} src={ecorouteLogo} width={{ xs: 40, md: 60 }} />
+          <Box component={"img"} src={ecorouteLogo} width={60} />
           <Stack>
-            <Typography sx={{ fontWeight: 700, fontSize: { xs: 24, md: 32 }, color: "white" }}>
+            <Typography sx={{ fontWeight: 700, fontSize: 32, color: "white" }}>
               EcoRoute
             </Typography>
-            <Typography sx={{ fontWeight: 400, fontSize: 12, color: "white", display: { xs: "none", md: "block" } }}>
+            <Typography sx={{ fontWeight: 400, fontSize: 12, color: "white" }}>
               Personalized low-impact commute planner
             </Typography>
           </Stack>
@@ -202,15 +196,13 @@ export const Header = () => {
         <Box
           sx={{
             display: "flex",
-            flexDirection: { xs: "column", md: "row" },
             justifyContent: "center",
             alignItems: "center",
             gap: 2,
-            width: { xs: "100%", md: "50%", lg: "60%" },
-            order: { xs: 3, md: 2 },
+            width: "60%",
           }}
         >
-          <Box width={{ xs: "100%", md: "60%" }}>
+          <Box width="60%">
             <RhfAutocomplete
               control={control}
               freeSolo
@@ -219,14 +211,13 @@ export const Header = () => {
               options={searchedLocationOptions}
             />
           </Box>
-          <Box width={{ xs: "100%", md: "40%" }} sx={{ display: "flex", justifyContent: "center" }}>
+          <Box width="40%">
             <Box
               sx={{
                 backgroundColor: "#0E3A34",
                 borderRadius: "14px",
                 p: 1,
-                width: { xs: "100%", md: 320 },
-                maxWidth: 400,
+                width: 320,
               }}
             >
               <GradientSlider
@@ -279,103 +270,23 @@ export const Header = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            order: { xs: 2, md: 3 },
           }}
         >
-          <IconButton onClick={handleMenuClick}>
+          <IconButton>
             <MenuIcon sx={{ color: "#fff" }} fontSize="large" />
           </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={openMenu}
-            onClose={handleMenuClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
+          <Button
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              color: "#fff",
+              textTransform: "none",
             }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
+            onClick={handleLogout}
           >
-            <MenuItem onClick={(e) => setSavedRoutesAnchorEl(e.currentTarget)}>Saved Routes</MenuItem>
-            <MenuItem onClick={() => { handleMenuClose(); navigate('/dashboard'); }}>Carbon Dashboard</MenuItem>
-          </Menu>
-
-          <Menu
-            anchorEl={savedRoutesAnchorEl}
-            open={openSavedRoutes}
-            onClose={() => setSavedRoutesAnchorEl(null)}
-            anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'left',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-          >
-            {isRoutesLoading ? (
-              <MenuItem disabled>Loading...</MenuItem>
-            ) : !savedRoutes || savedRoutes.length === 0 ? (
-              <MenuItem disabled>No saved routes</MenuItem>
-            ) : (
-              savedRoutes.map((route: any) => (
-                <MenuItem 
-                  key={route.routeId}
-                  onClick={() => handleSavedRouteClick(route)}
-                >
-                  <Stack>
-                    <Typography variant="body1" fontWeight={500}>{route.label}</Typography>
-                    <Typography variant="caption" color="text.secondary">CO2: {route.lastCo2Score}g</Typography>
-                  </Stack>
-                </MenuItem>
-              ))
-            )}
-          </Menu>
-          {user ? (
-            <Button
-              onClick={() => {
-                logout();
-                navigate(ROUTES.LOG_IN);
-              }}
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                color: "#fff",
-                textTransform: "none",
-                minWidth: "64px",
-              }}
-            >
-              <Avatar 
-                sx={{ 
-                  width: 32, 
-                  height: 32, 
-                  mb: 0.5, 
-                  bgcolor: "rgba(255,255,255,0.2)",
-                  fontSize: "1rem" 
-                }}
-              >
-                {user.name.charAt(0).toUpperCase()}
-              </Avatar>
-              Logout
-            </Button>
-          ) : (
-            <Button
-              onClick={() => navigate(ROUTES.LOG_IN)}
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                color: "#fff",
-                textTransform: "none",
-              }}
-            >
-              <PersonIcon sx={{ mr: 1 }} fontSize="large" />
-              Log in
-            </Button>
-          )}
+            <LogoutIcon sx={{ mr: 1 }} fontSize="large" />
+          </Button>
         </Box>
       </Box>
     </Paper>

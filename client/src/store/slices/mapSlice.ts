@@ -9,12 +9,14 @@ export interface IMapLocationSlice {
 
 export interface IMapLocationStore {
   selectedLocation: IMapLocationSlice | null;
+  startLocation: IMapLocationSlice | null;
   greenPreference: number;
   vehicleMode: string | null;
   setSelectedLocation: (location: IMapLocationSlice) => void;
   clearSelectedLocation: () => void;
   setGreenPreference: (value: number) => void;
   setVehicleMode: (mode: string) => void;
+  setStartLocation: (location: IMapLocationSlice) => void;
 }
 
 export const createMapLocationSlice: StateCreator<IMapLocationStore> = (
@@ -23,6 +25,9 @@ export const createMapLocationSlice: StateCreator<IMapLocationStore> = (
   selectedLocation: null,
   greenPreference: 1,
   vehicleMode: null,
+  startLocation: null,
+
+  setStartLocation: (location) => set({ startLocation: location }),
 
   setGreenPreference: (value) => set({ greenPreference: value }),
 

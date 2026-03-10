@@ -4,13 +4,9 @@ import type { LatLngTuple } from "leaflet";
 export function useUserLocation(defaultLocation: LatLngTuple) {
   const [location, setLocation] = useState<LatLngTuple>(defaultLocation);
   const [loading, setLoading] = useState<boolean>(!!navigator.geolocation);
-  const [usedFallback, setUsedFallback] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!navigator.geolocation) {
-      setUsedFallback(true);
-      return;
-    }
+    if (!navigator.geolocation) return;
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -18,8 +14,7 @@ export function useUserLocation(defaultLocation: LatLngTuple) {
         setLoading(false);
       },
       () => {
-        // permission denied / error — keep default (Eugene) and flag it
-        setUsedFallback(true);
+        // permission denied / error
         setLoading(false);
       },
       {
@@ -29,5 +24,5 @@ export function useUserLocation(defaultLocation: LatLngTuple) {
     );
   }, []);
 
-  return { location, loading, usedFallback };
+  return { location, loading };
 }

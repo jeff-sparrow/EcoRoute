@@ -1,8 +1,8 @@
 export const ROUTES = {
     HOME: "/",
     LOG_IN: "/login",
-    SIGN_UP: "/signup",
-    DASHBOARD: "/dashboard",
+    REGISTRATION: "/registration",
+    HISTORY: "/history",
 };
 
 export const LINKS = {

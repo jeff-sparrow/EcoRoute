@@ -8,33 +8,33 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import ecorouterLogo from "../../assets/ecorouteLogo.png";
-import LockIcon from "@mui/icons-material/Lock";
 import mobileImage from "../../assets/ecoroute1.png";
 import pegasus from "../../assets/ecoroute1.png";
 import PersonIcon from "@mui/icons-material/Person";
-import { useForm, type SubmitHandler } from "react-hook-form";
-import { useState } from "react";
+import LockIcon from "@mui/icons-material/Lock";
+import EmailIcon from "@mui/icons-material/Email";
 import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
+import { useState } from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../constants/route-constant";
 import { keyframes } from "@mui/material/styles";
-import { axios } from "../../utils/api-services";
-import { getLoginService } from "../../utils/api-services/login";
 import { useMutation } from "@tanstack/react-query";
 import type { AxiosError, AxiosResponse } from "axios";
+import backendInstance from "../../utils/api-services/backendInstance";
 import {
   setInLocalStorage,
   STORAGE_KEY,
 } from "../../utils/local-storage-service";
-import backendInstance from "../../utils/api-services/backendInstance";
 
-type LoginFormInputs = {
+type RegisterFormInputs = {
+  name: string;
   email: string;
   password: string;
 };
 
-const defaultLoginFormValues: LoginFormInputs = {
+const defaultValues: RegisterFormInputs = {
+  name: "",
   email: "",
   password: "",
 };
@@ -44,50 +44,41 @@ const cardEntry = keyframes`
   to { opacity: 1; transform: translateY(0) scale(1); }
 `;
 
-export const Login = () => {
-  const [showPassword, setShowPassword] = useState(false);
-
+export const Register = () => {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormInputs>({
-    defaultValues: defaultLoginFormValues,
+  } = useForm<RegisterFormInputs>({
+    defaultValues,
   });
 
-  const handleTogglePassword = () => setShowPassword((prev) => !prev);
-
-  const { mutate: login, isPending } = useMutation({
-    mutationFn: (credentials: LoginFormInputs) =>
-      getLoginService({
-        api: backendInstance,
-        data: credentials,
-      }),
+  const { mutate: registerUser, isPending } = useMutation({
+    mutationFn: (data: RegisterFormInputs) =>
+      backendInstance.post("/api/register", data),
 
     onSuccess: (response: AxiosResponse) => {
       const { token, user } = response.data;
 
-      // store token
-      localStorage.setItem("token", token);
-
-      // store user info
+      setInLocalStorage(STORAGE_KEY.ACCESS_TOKEN, token);
       localStorage.setItem("user", JSON.stringify(user));
 
-      // navigate to home
       navigate(ROUTES.HOME);
     },
 
-    onError: (error: AxiosError) => {
-      console.error( "av",error);
+    onError: (error: AxiosError<any>) => {
+      console.log("REGISTER ERROR:", error.response?.data);
     },
   });
 
-  const onSubmit: SubmitHandler<LoginFormInputs> = (data) => {
-    login(data);
-    console.log("Login data:", data);
+  const onSubmit: SubmitHandler<RegisterFormInputs> = (data) => {
+    registerUser(data);
   };
+
+  const handleTogglePassword = () => setShowPassword((prev) => !prev);
 
   return (
     <Box
@@ -96,21 +87,22 @@ export const Login = () => {
         minHeight: "100vh",
         position: "relative",
         backgroundImage: `url(${mobileImage})`,
-        backgroundSize: "fill",
+        backgroundSize: "cover",
         backgroundPosition: "center",
         px: 2,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
       }}
     >
-      {/* Login Card */}
       <Box
         sx={{
-          maxWidth: "100%",
+          maxWidth: 560,
+          width: "100%",
           bgcolor: "white",
           borderRadius: 3,
           boxShadow: "0 8px 30px rgba(14,81,73,0.12)",
           p: { xs: 4, sm: 6 },
-          minHeight: { xs: "auto", sm: 580 },
-          zIndex: 5,
           animation: `${cardEntry} 680ms ease-in`,
         }}
       >
@@ -118,11 +110,11 @@ export const Login = () => {
           <Box component={"img"} src={pegasus} width={200} />
 
           <Typography fontWeight={700} fontSize={28} color="#0e5149">
-            Welcome back
+            Create Account
           </Typography>
 
-          <Typography fontWeight={400} fontSize={15} color="text.secondary">
-            Please log in
+          <Typography fontSize={15} color="text.secondary">
+            Register to continue
           </Typography>
 
           <Box
@@ -130,31 +122,42 @@ export const Login = () => {
             onSubmit={handleSubmit(onSubmit)}
             sx={{ width: "100%", maxWidth: 420 }}
           >
-            {/* Username */}
+            {/* Name */}
             <TextField
-              label="Username"
+              label="Name"
               fullWidth
               margin="normal"
-              {...register("email", {
-                required: "Email is required",
-                pattern: {
-                  value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                  message: "Invalid email address",
-                },
+              {...register("name", {
+                required: "Name is required",
               })}
-              error={!!errors.email}
-              helperText={errors.email?.message}
-              sx={{
-                bgcolor: "white",
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "15px",
-                },
-              }}
+              error={!!errors.name}
+              helperText={errors.name?.message}
               slotProps={{
                 input: {
                   startAdornment: (
                     <InputAdornment position="start">
-                      <PersonIcon sx={{ color: "rgba(0,0,0,0.6)" }} />
+                      <PersonIcon />
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+
+            {/* Email */}
+            <TextField
+              label="Email"
+              fullWidth
+              margin="normal"
+              {...register("email", {
+                required: "Email is required",
+              })}
+              error={!!errors.email}
+              helperText={errors.email?.message}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <EmailIcon />
                     </InputAdornment>
                   ),
                 },
@@ -167,16 +170,21 @@ export const Login = () => {
               type={showPassword ? "text" : "password"}
               fullWidth
               margin="normal"
+              {...register("password", {
+                required: "Password is required",
+              })}
+              error={!!errors.password}
+              helperText={errors.password?.message}
               slotProps={{
                 input: {
                   startAdornment: (
                     <InputAdornment position="start">
-                      <LockIcon sx={{ color: "rgba(0,0,0,0.6)" }} />
+                      <LockIcon />
                     </InputAdornment>
                   ),
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton onClick={handleTogglePassword} edge="end">
+                      <IconButton onClick={handleTogglePassword}>
                         {showPassword ? (
                           <VisibilityOutlined />
                         ) : (
@@ -187,27 +195,10 @@ export const Login = () => {
                   ),
                 },
               }}
-              {...register("password", {
-                required: "Password is required",
-              })}
-              error={!!errors.password}
-              helperText={errors.password?.message}
-              sx={{
-                bgcolor: "white",
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "15px",
-                },
-              }}
             />
 
             {isPending ? (
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  mt: 2,
-                }}
-              >
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
                 <CircularProgress size={36} color="success" />
               </Box>
             ) : (
@@ -219,24 +210,24 @@ export const Login = () => {
                   mt: 2,
                   bgcolor: "#3b8d8c",
                   borderRadius: "8px",
-                  color: "#fff",
                   "&:hover": { bgcolor: "#327670" },
                   boxShadow: "none",
                 }}
               >
-                Login
+                Register
               </Button>
             )}
+
+            <Box display="flex" justifyContent="center" mt={3}>
+              <Typography>
+                Already have an account? <a href="/login">Sign in</a>
+              </Typography>
+            </Box>
           </Box>
         </Stack>
-        <Box display="flex" justifyContent="center" mt={3}>
-          <Typography>
-            Dont have an account? <a href="/registration">Sign up</a>
-          </Typography>
-        </Box>
       </Box>
     </Box>
   );
 };
 
-export default Login;
+export default Register;
