@@ -9,14 +9,15 @@ import {
 } from "react-leaflet";
 import type { LatLngTuple } from "leaflet";
 import { latLngBounds } from "leaflet";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useUserLocation } from "../../hooks/useUserLocation";
 import { useStore } from "../../store";
 import { selectSelectedLocation } from "../../store/selectors/mapLocationSelector";
 import { RecenterMap } from "../../components/RecenterMap";
 import { useQuery } from "@tanstack/react-query";
-import { getRoute } from "../../utils/api-services/location";
+import { getRoute, saveUserTrip } from "../../utils/api-services/location";
 import orsInstance from "../../utils/api-services/orsInstance";
+import { axios } from "../../utils/api-services";
 import DirectionsIcon from "@mui/icons-material/Directions";
 import { RouteSidebar } from "./RouteSidebar";
 import type { IRouteData } from "../../models/location";
@@ -56,6 +57,7 @@ export const Home = () => {
   const { location, loading } = useUserLocation(FALLBACK_LOCATION);
   const selectedLocation = useStore(selectSelectedLocation);
   const greenPreference = useStore((state) => state.greenPreference);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const { data, refetch, isFetching } = useQuery<IRouteData[]>({
     queryKey: ["route", location, selectedLocation],
@@ -137,6 +139,31 @@ export const Home = () => {
     refetch();
     setIsSideBarOpen(true);
   };
+
+  const handleGoNavigation = async () => {
+    setIsNavigating(true);
+    const user = useStore.getState().user;
+    if (user && activeRoute) {
+      try {
+        await saveUserTrip({
+          api: axios,
+          data: {
+            userId: user.userId,
+            payload: {
+              mode: activeRoute.mode,
+              distanceKm: activeRoute.distanceKm,
+              routeCo2Grams: activeRoute.carbonGrams,
+              baselineMode: 'car',
+            }
+          }
+        });
+        console.log("Trip saved to database successfully.");
+      } catch (e) {
+        console.error("Failed to save user trip:", e);
+      }
+    }
+  };
+
   const handleOnCloseRouteSidebar = () => {
     setIsSideBarOpen(false);
     clearSelectedLocation();
@@ -156,6 +183,7 @@ export const Home = () => {
             onClose={handleOnCloseRouteSidebar}
             startLabel="My Location"
             endLabel={selectedLocation?.label || ""}
+            isNavigating={isNavigating}
           />
         </Box>
       )}
@@ -193,7 +221,7 @@ export const Home = () => {
           <ZoomControl position="bottomright" />
           <ResizeMap trigger={data} />
         </MapContainer>
-        {selectedLocation && route.length === 0 && (
+        {selectedLocation && (
           <Box
             sx={{
               position: "fixed",
@@ -203,16 +231,28 @@ export const Home = () => {
               zIndex: 2000,
             }}
           >
-            <Button
-              variant="contained"
-              color="success"
-              size="large"
-              onClick={handleRouteDestination}
-              disabled={isFetching}
-              startIcon={<DirectionsIcon />}
-            >
-              {isFetching ? "Getting Directions, please wait..." : "Directions"}
-            </Button>
+            {route.length === 0 ? (
+              <Button
+                variant="contained"
+                color="success"
+                size="large"
+                onClick={handleRouteDestination}
+                disabled={isFetching}
+                startIcon={<DirectionsIcon />}
+              >
+                {isFetching ? "Getting Directions, please wait..." : "Directions"}
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                color={isNavigating ? "error" : "success"}
+                size="large"
+                onClick={() => isNavigating ? setIsNavigating(false) : handleGoNavigation()}
+                sx={{ borderRadius: "50px", px: 4, py: 1.5, fontSize: "1.2rem", fontWeight: "bold" }}
+              >
+                {isNavigating ? "Stop" : "Go"}
+              </Button>
+            )}
           </Box>
         )}
       </Box>
