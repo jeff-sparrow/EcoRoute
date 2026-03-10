@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { calculateCarbonSavedGrams } from "../services/carbonCalculator.js";
 import { pool } from "../data/db.js";
-import { createUserSchema, saveRouteSchema, tripSchema } from "../validation/schemas.js";
+import { createUserSchema, saveRouteSchema, tripSchema, loginUserSchema } from "../validation/schemas.js";
 
 const getUserOrThrow = async (userId) => {
   const result = await pool.query("SELECT * FROM users WHERE user_id = $1", [userId]);
@@ -35,6 +35,38 @@ export const createUser = async (req, res, next) => {
     if (error.name === "ZodError") {
       error.status = 400;
       error.message = "Invalid user payload.";
+      error.details = error.issues;
+    }
+    next(error);
+  }
+};
+
+export const loginUser = async (req, res, next) => {
+  try {
+    const payload = loginUserSchema.parse(req.body);
+    
+    const result = await pool.query(
+      `SELECT * FROM users WHERE email = $1`,
+      [payload.email]
+    );
+
+    if (result.rows.length === 0) {
+      const error = new Error("User not found with this email.");
+      error.status = 404;
+      throw error;
+    }
+
+    res.status(200).json({
+      userId: result.rows[0].user_id,
+      name: result.rows[0].name,
+      email: result.rows[0].email,
+      greenPreferenceScore: result.rows[0].green_preference_score,
+      createdAt: result.rows[0].created_at,
+    });
+  } catch (error) {
+    if (error.name === "ZodError") {
+      error.status = 400;
+      error.message = "Invalid login payload.";
       error.details = error.issues;
     }
     next(error);
