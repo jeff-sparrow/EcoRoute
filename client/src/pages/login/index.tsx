@@ -34,7 +34,10 @@ const Login = () => {
 
     try {
       setLoading(true);
-      const host = import.meta.env.VITE_API_URL || "http://localhost:4000";
+      let host = import.meta.env.VITE_API_URL || "http://localhost:4000";
+      if (host.includes("localhost")) {
+        host = host.replace("localhost", window.location.hostname);
+      }
       const response = await axios.post(`${host}/api/users/login`, { email });
       
       login(response.data);
