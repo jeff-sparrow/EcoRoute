@@ -1,5 +1,5 @@
 
-## [ ] [#3: Inaccessible Route Timeout](/../../issues/3)
+## [x] [#3: Inaccessible Route Timeout](/../../issues/3)
 When routing to an inaccessible (e.g. Eugene -> Berlin) or very far destination, EcoRoute timed out, not showing UI elements aside from the map and directions button.
 
 ## [ ] [#4: Specific destinations do not show up in route search results](/../../issues/4)
@@ -28,3 +28,4 @@ The hamburger icons (in the route display modal and main screen) and sign in but
 
 ## [ ] [#17: Location defaults to UO when location is not provided](/../../issues/17)
 When EcoRoute is unable to resolve the user's location, it defaults to UO.
+
