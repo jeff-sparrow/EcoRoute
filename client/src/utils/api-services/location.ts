@@ -43,7 +43,7 @@ export async function getRoute<R = any>(
     return Promise.reject(new Error("Missing data parameter for getRoute"));
   }
 
-  const baseUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+  const baseUrl = import.meta.env.VITE_BACKEND_URL;
 
   try {
     const response = await api.post(
