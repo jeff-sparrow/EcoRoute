@@ -13,6 +13,7 @@ const Home = Loader(lazy(() => import("../pages/home")));
 const Layout = Loader(lazy(() => import("../layout")));
 const Login = Loader(lazy(() => import("../pages/login")));
 const Registration = Loader(lazy(() => import("../pages/registration")));
+const History = Loader(lazy(() => import("../pages/history")));
 
 export const RouterConfig = () => {
   const location = useLocation();
@@ -27,6 +28,7 @@ export const RouterConfig = () => {
       <Route element={<AuthProvider />}>
         <Route element={<Layout />}>
           <Route index element={<Home />} />
+          <Route path={ROUTES.HISTORY} element={<History />} />
         </Route>
       </Route>
     </Routes>

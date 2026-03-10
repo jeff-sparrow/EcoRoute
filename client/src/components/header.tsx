@@ -26,8 +26,8 @@ import ecorouteLogo from "../assets/ecorouteLogo.png";
 import MenuIcon from "@mui/icons-material/Menu";
 import PersonIcon from "@mui/icons-material/Person";
 import { ROUTES } from "../constants/route-constant";
-import { useNavigate } from "react-router-dom";
-import LogoutIcon from '@mui/icons-material/Logout';
+import { Link, useNavigate } from "react-router-dom";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 type SearchFormInputs = {
   searchName: string;
@@ -137,6 +137,16 @@ export const Header = () => {
 
         <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
           <MenuItem onClick={handleLogout}>Log out</MenuItem>
+          <MenuItem>
+            <Button component={Link} to="/history">
+              History
+            </Button>
+          </MenuItem>
+          <MenuItem>
+            <Button component={Link} to="/">
+              Home
+            </Button>
+          </MenuItem>
         </Menu>
       </>
     );

@@ -119,6 +119,10 @@ export const RouteSidebar = ({
   const setStartLocation = useStore((state) => state.setStartLocation);
   const vehicleMode = useStore((state) => state.vehicleMode);
   const setVehicleMode = useStore((state) => state.setVehicleMode);
+  const userId = localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user") as string).id
+    : null;
+  console.log("USER ID:", userId);
 
   const activeRoute = routes.find((r) => r.mode === vehicleMode);
   const steps = activeRoute?.segments?.[0]?.steps ?? [];
@@ -225,7 +229,7 @@ export const RouteSidebar = ({
     mutationFn: (data: any): Promise<AxiosResponse> =>
       saveTrip({
         api: backendInstance,
-        url: `${"30f50a4d-50aa-462a-849a-48ced1b82ae3"}`,
+        url: `${userId}`,
         data: {
           ...data,
         },
@@ -244,7 +248,7 @@ export const RouteSidebar = ({
 
   const onSubmit = (data: any) => {
     const payload = {
-      user_id: "30f50a4d-50aa-462a-849a-48ced1b82ae3",
+      user_id: userId,
 
       ...data,
 
@@ -260,8 +264,9 @@ export const RouteSidebar = ({
       distance_km: activeRoute?.distance_km ?? 0,
       duration_minutes: activeRoute?.duration_min ?? 0,
       route_co2_kg: activeRoute?.carbon_kg ?? 0,
-      coordinates: activeRoute?.coordinates ?? [],
-      segments: activeRoute?.segments ?? [],
+      carbon_saved_kg: activeRoute?.carbon_saved_kg ?? 0,
+      // coordinates: activeRoute?.coordinates ?? [],
+      // segments: activeRoute?.segments ?? [],
     };
 
     saveTripMutation(payload);

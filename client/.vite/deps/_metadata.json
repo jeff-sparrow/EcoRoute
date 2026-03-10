@@ -1,0 +1,220 @@
+{
+  "hash": "8cbe4d9b",
+  "configHash": "9070d6ce",
+  "lockfileHash": "44dc4ec1",
+  "browserHash": "f924115e",
+  "optimized": {
+    "@mui/icons-material/Adjust": {
+      "src": "../../node_modules/@mui/icons-material/esm/Adjust.js",
+      "file": "@mui_icons-material_Adjust.js",
+      "fileHash": "e65c2517",
+      "needsInterop": false
+    },
+    "@mui/icons-material/ArrowBack": {
+      "src": "../../node_modules/@mui/icons-material/esm/ArrowBack.js",
+      "file": "@mui_icons-material_ArrowBack.js",
+      "fileHash": "90ed4d5f",
+      "needsInterop": false
+    },
+    "@mui/icons-material/Bookmark": {
+      "src": "../../node_modules/@mui/icons-material/esm/Bookmark.js",
+      "file": "@mui_icons-material_Bookmark.js",
+      "fileHash": "1ceb816a",
+      "needsInterop": false
+    },
+    "@mui/icons-material/BookmarkBorder": {
+      "src": "../../node_modules/@mui/icons-material/esm/BookmarkBorder.js",
+      "file": "@mui_icons-material_BookmarkBorder.js",
+      "fileHash": "5ba0feb5",
+      "needsInterop": false
+    },
+    "@mui/icons-material/Directions": {
+      "src": "../../node_modules/@mui/icons-material/esm/Directions.js",
+      "file": "@mui_icons-material_Directions.js",
+      "fileHash": "fca1f1c0",
+      "needsInterop": false
+    },
+    "@mui/icons-material/DirectionsBike": {
+      "src": "../../node_modules/@mui/icons-material/esm/DirectionsBike.js",
+      "file": "@mui_icons-material_DirectionsBike.js",
+      "fileHash": "e0061fc8",
+      "needsInterop": false
+    },
+    "@mui/icons-material/DirectionsCar": {
+      "src": "../../node_modules/@mui/icons-material/esm/DirectionsCar.js",
+      "file": "@mui_icons-material_DirectionsCar.js",
+      "fileHash": "24a1e08b",
+      "needsInterop": false
+    },
+    "@mui/icons-material/DirectionsWalk": {
+      "src": "../../node_modules/@mui/icons-material/esm/DirectionsWalk.js",
+      "file": "@mui_icons-material_DirectionsWalk.js",
+      "fileHash": "e00ca60a",
+      "needsInterop": false
+    },
+    "@mui/icons-material/Forest": {
+      "src": "../../node_modules/@mui/icons-material/esm/Forest.js",
+      "file": "@mui_icons-material_Forest.js",
+      "fileHash": "657305ba",
+      "needsInterop": false
+    },
+    "@mui/icons-material/HelpOutline": {
+      "src": "../../node_modules/@mui/icons-material/esm/HelpOutline.js",
+      "file": "@mui_icons-material_HelpOutline.js",
+      "fileHash": "e77f66bc",
+      "needsInterop": false
+    },
+    "@mui/icons-material/LocationOn": {
+      "src": "../../node_modules/@mui/icons-material/esm/LocationOn.js",
+      "file": "@mui_icons-material_LocationOn.js",
+      "fileHash": "58f8ecd6",
+      "needsInterop": false
+    },
+    "@mui/icons-material/LocationOnOutlined": {
+      "src": "../../node_modules/@mui/icons-material/esm/LocationOnOutlined.js",
+      "file": "@mui_icons-material_LocationOnOutlined.js",
+      "fileHash": "50620441",
+      "needsInterop": false
+    },
+    "@mui/icons-material/Menu": {
+      "src": "../../node_modules/@mui/icons-material/esm/Menu.js",
+      "file": "@mui_icons-material_Menu.js",
+      "fileHash": "b538bcfa",
+      "needsInterop": false
+    },
+    "@mui/icons-material/North": {
+      "src": "../../node_modules/@mui/icons-material/esm/North.js",
+      "file": "@mui_icons-material_North.js",
+      "fileHash": "03bd8891",
+      "needsInterop": false
+    },
+    "@mui/icons-material/NorthEast": {
+      "src": "../../node_modules/@mui/icons-material/esm/NorthEast.js",
+      "file": "@mui_icons-material_NorthEast.js",
+      "fileHash": "5c405243",
+      "needsInterop": false
+    },
+    "@mui/icons-material/Person": {
+      "src": "../../node_modules/@mui/icons-material/esm/Person.js",
+      "file": "@mui_icons-material_Person.js",
+      "fileHash": "99e1a272",
+      "needsInterop": false
+    },
+    "@mui/icons-material/Place": {
+      "src": "../../node_modules/@mui/icons-material/esm/Place.js",
+      "file": "@mui_icons-material_Place.js",
+      "fileHash": "58fe83ae",
+      "needsInterop": false
+    },
+    "@mui/icons-material/Route": {
+      "src": "../../node_modules/@mui/icons-material/esm/Route.js",
+      "file": "@mui_icons-material_Route.js",
+      "fileHash": "67627c5f",
+      "needsInterop": false
+    },
+    "@mui/icons-material/TurnLeft": {
+      "src": "../../node_modules/@mui/icons-material/esm/TurnLeft.js",
+      "file": "@mui_icons-material_TurnLeft.js",
+      "fileHash": "9138abc8",
+      "needsInterop": false
+    },
+    "@mui/icons-material/TurnRight": {
+      "src": "../../node_modules/@mui/icons-material/esm/TurnRight.js",
+      "file": "@mui_icons-material_TurnRight.js",
+      "fileHash": "20ecc10f",
+      "needsInterop": false
+    },
+    "@mui/material": {
+      "src": "../../node_modules/@mui/material/esm/index.js",
+      "file": "@mui_material.js",
+      "fileHash": "1247cc11",
+      "needsInterop": false
+    },
+    "@tanstack/react-query": {
+      "src": "../../node_modules/@tanstack/react-query/build/modern/index.js",
+      "file": "@tanstack_react-query.js",
+      "fileHash": "41ea905c",
+      "needsInterop": false
+    },
+    "axios": {
+      "src": "../../node_modules/axios/index.js",
+      "file": "axios.js",
+      "fileHash": "47746e84",
+      "needsInterop": false
+    },
+    "leaflet": {
+      "src": "../../node_modules/leaflet/dist/leaflet-src.js",
+      "file": "leaflet.js",
+      "fileHash": "e9ed3c6a",
+      "needsInterop": true
+    },
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "15dc22a1",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "338dc632",
+      "needsInterop": true
+    },
+    "react-hook-form": {
+      "src": "../../node_modules/react-hook-form/dist/index.esm.mjs",
+      "file": "react-hook-form.js",
+      "fileHash": "71fc7447",
+      "needsInterop": false
+    },
+    "react-leaflet": {
+      "src": "../../node_modules/react-leaflet/lib/index.js",
+      "file": "react-leaflet.js",
+      "fileHash": "009f9dff",
+      "needsInterop": false
+    },
+    "react-router": {
+      "src": "../../node_modules/react-router/dist/development/index.mjs",
+      "file": "react-router.js",
+      "fileHash": "664e972b",
+      "needsInterop": false
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.mjs",
+      "file": "react-router-dom.js",
+      "fileHash": "5015b78f",
+      "needsInterop": false
+    },
+    "zustand": {
+      "src": "../../node_modules/zustand/esm/index.mjs",
+      "file": "zustand.js",
+      "fileHash": "4de8da8a",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-DGCGC3HI": {
+      "file": "chunk-DGCGC3HI.js"
+    },
+    "chunk-LGP75K45": {
+      "file": "chunk-LGP75K45.js"
+    },
+    "chunk-HZHJYHF4": {
+      "file": "chunk-HZHJYHF4.js"
+    },
+    "chunk-C6WWHQR7": {
+      "file": "chunk-C6WWHQR7.js"
+    },
+    "chunk-7HTKAZTD": {
+      "file": "chunk-7HTKAZTD.js"
+    },
+    "chunk-XTO5INRR": {
+      "file": "chunk-XTO5INRR.js"
+    },
+    "chunk-Y6BMGME7": {
+      "file": "chunk-Y6BMGME7.js"
+    },
+    "chunk-G3PMV62Z": {
+      "file": "chunk-G3PMV62Z.js"
+    }
+  }
+}
