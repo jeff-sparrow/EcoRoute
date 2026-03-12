@@ -523,8 +523,8 @@ POST
   "message": "User registered successfully",
   "user": {
     "id": "uuid",
-    "name": "Farid",
-    "email": "farid@example.com"
+    "name": "test",
+    "email": "test@example.com"
   }
 }
 ```
@@ -535,8 +535,8 @@ POST
 `https://ecoserver-3v5x.onrender.com/api/login`
 - Request Body
 {
-  "email": "farid@example.com",
-  "password": "password123"
+  "email": "test@example.com",
+  "password": "testpass"
 }
 - Response
 ```
@@ -545,8 +545,8 @@ POST
   "token": "jwt_token_here",
   "user": {
     "id": "uuid",
-    "name": "Farid",
-    "email": "farid@example.com"
+    "name": "test",
+    "email": "test@example.com"
   }
 }
 ```
