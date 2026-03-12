@@ -54,6 +54,7 @@ export const Home = () => {
   const clearSelectedLocation = useStore(
     (state) => state.clearSelectedLocation,
   );
+  const vehicleMode = useStore((state) => state.vehicleMode);
   const { location, loading } = useUserLocation(FALLBACK_LOCATION);
   const selectedLocation = useStore(selectSelectedLocation);
   const greenPreference = useStore((state) => state.greenPreference);
@@ -92,23 +93,6 @@ export const Home = () => {
       refetch();
     }
   }, [startLocation, refetch, selectedLocation]);
-
-  const lowestScoreRoute = useMemo(() => {
-    if (!data || data.length === 0) return null;
-
-    return data.reduce((prev, current) =>
-      current.score < prev.score ? current : prev,
-    );
-  }, [data]);
-  const setVehicleMode = useStore((state) => state.setVehicleMode);
-
-  useEffect(() => {
-    if (lowestScoreRoute) {
-      setVehicleMode(lowestScoreRoute.mode);
-    }
-  }, [lowestScoreRoute, setVehicleMode]);
-
-  const vehicleMode = useStore((state) => state.vehicleMode);
   const activeRoute = useMemo(() => {
     if (!data || !vehicleMode) return null;
 
@@ -149,6 +133,7 @@ export const Home = () => {
   const handleOnCloseRouteSidebar = () => {
     setIsSideBarOpen(false);
     clearSelectedLocation();
+    window.location.reload();
   };
 
   const startPosition: LatLngTuple = startLocation

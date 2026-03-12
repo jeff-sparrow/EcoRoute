@@ -15,7 +15,7 @@ export interface IMapLocationStore {
   setSelectedLocation: (location: IMapLocationSlice) => void;
   clearSelectedLocation: () => void;
   setGreenPreference: (value: number) => void;
-  setVehicleMode: (mode: string) => void;
+  setVehicleMode: (mode: string | null) => void;
   setStartLocation: (location: IMapLocationSlice) => void;
 }
 

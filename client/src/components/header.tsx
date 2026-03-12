@@ -1,7 +1,6 @@
 import {
   Avatar,
   Box,
-  Button,
   IconButton,
   Menu,
   MenuItem,
@@ -25,9 +24,9 @@ import { mapSearchLocationOptions } from "../helper/locations";
 import ecorouteLogo from "../assets/ecorouteLogo.png";
 import MenuIcon from "@mui/icons-material/Menu";
 import PersonIcon from "@mui/icons-material/Person";
-import { ROUTES } from "../constants/route-constant";
-import { Link, useNavigate } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
+import { ROUTES } from "../constants/route-constant";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 type SearchFormInputs = {
   searchName: string;
@@ -42,6 +41,10 @@ export const Header = () => {
   const greenPreference = useStore((state) => state.greenPreference);
   const setGreenPreference = useStore((state) => state.setGreenPreference);
   const setSelectedLocation = useStore((state) => state.setSelectedLocation);
+  const clearSelectedLocation = useStore(
+    (state) => state.clearSelectedLocation,
+  );
+
   const { control, watch } = useForm<SearchFormInputs>({
     defaultValues: defaultLoginFormValues,
     mode: "onChange",
@@ -76,6 +79,7 @@ export const Header = () => {
 
   useEffect(() => {
     if (!query) return;
+
     const matchedOption = searchedLocationOptions.find(
       (opt: any) => opt.value === query,
     );
@@ -84,6 +88,7 @@ export const Header = () => {
     if (lastSelectedRef.current === query) return;
 
     lastSelectedRef.current = query;
+
     setSelectedLocation({
       id: matchedOption.id,
       label: matchedOption.label,
@@ -107,12 +112,19 @@ export const Header = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-
     setAnchorEl(null);
     navigate(ROUTES.LOG_IN);
+    clearSelectedLocation();
+    window.location.reload();
   };
 
-  if (isSidebarOpen) {
+  const location = useLocation();
+
+  if (
+    isSidebarOpen ||
+    location.pathname === "/history" ||
+    location.pathname === "/saved-routes"
+  ) {
     return (
       <>
         <Box
@@ -121,7 +133,6 @@ export const Header = () => {
             top: 16,
             right: 16,
             zIndex: 1200,
-            borderRadius: 2,
           }}
         >
           <Avatar
@@ -136,16 +147,27 @@ export const Header = () => {
         </Box>
 
         <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
-          <MenuItem onClick={handleLogout}>Log out</MenuItem>
-          <MenuItem>
-            <Button component={Link} to="/history">
-              History
-            </Button>
+          <MenuItem
+            component={Link}
+            to="/"
+            onClick={() => {
+              navigate("/");
+              window.location.reload();
+            }}
+          >
+            Home
           </MenuItem>
-          <MenuItem>
-            <Button component={Link} to="/">
-              Home
-            </Button>
+
+          <MenuItem component={Link} to="/history">
+            History
+          </MenuItem>
+          <MenuItem component={Link} to="/saved-routes">
+            Saved routes
+          </MenuItem>
+
+          <MenuItem onClick={handleLogout}>
+            <LogoutIcon sx={{ mr: 1 }} />
+            Logout
           </MenuItem>
         </Menu>
       </>
@@ -153,143 +175,152 @@ export const Header = () => {
   }
 
   return (
-    <Paper
-      elevation={5}
-      sx={{
-        position: "fixed",
-        top: 16,
-        left: 16,
-        right: 16,
-        backgroundColor: "#10B981",
-        px: 2,
-        py: 1,
-        zIndex: 1200,
-        borderRadius: 2,
-      }}
-    >
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        gap={2}
-        width="100%"
+    <>
+      <Paper
+        elevation={5}
+        sx={{
+          position: "fixed",
+          top: 16,
+          left: 16,
+          right: 16,
+          backgroundColor: "#10B981",
+          px: 2,
+          py: 1,
+          zIndex: 1200,
+          borderRadius: 2,
+        }}
       >
         <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: 1,
-          }}
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          gap={2}
+          width="100%"
         >
-          <Box component={"img"} src={ecorouteLogo} width={60} />
-          <Stack>
-            <Typography sx={{ fontWeight: 700, fontSize: 32, color: "white" }}>
-              EcoRoute
-            </Typography>
-            <Typography sx={{ fontWeight: 400, fontSize: 12, color: "white" }}>
-              Personalized low-impact commute planner
-            </Typography>
-          </Stack>
-        </Box>
-
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: 2,
-            width: "60%",
-          }}
-        >
-          <Box width="60%">
-            <RhfAutocomplete
-              control={control}
-              freeSolo
-              name="searchName"
-              label="Where To?"
-              options={searchedLocationOptions}
-            />
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            <Box component={"img"} src={ecorouteLogo} width={60} />
+            <Stack>
+              <Typography
+                sx={{ fontWeight: 700, fontSize: 32, color: "white" }}
+              >
+                EcoRoute
+              </Typography>
+              <Typography
+                sx={{ fontWeight: 400, fontSize: 12, color: "white" }}
+              >
+                Personalized low-impact commute planner
+              </Typography>
+            </Stack>
           </Box>
-          <Box width="40%">
-            <Box
-              sx={{
-                backgroundColor: "#0E3A34",
-                borderRadius: "14px",
-                p: 1,
-                width: 320,
-              }}
-            >
-              <GradientSlider
-                min={0}
-                max={1}
-                step={0.1}
-                value={greenPreference}
-                onChange={(_, value) => {
-                  if (typeof value === "number") {
-                    setGreenPreference(value);
-                  }
-                }}
-                sx={{ p: 0 }}
-              />
 
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 2,
+              width: "60%",
+            }}
+          >
+            <Box width="60%">
+              <RhfAutocomplete
+                control={control}
+                freeSolo
+                name="searchName"
+                label="Where To?"
+                options={searchedLocationOptions}
+              />
+            </Box>
+
+            <Box width="40%">
               <Box
                 sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
+                  backgroundColor: "#0E3A34",
+                  borderRadius: "14px",
+                  p: 1,
+                  width: 320,
                 }}
               >
-                <Typography
-                  sx={{
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: "#1E88E5",
-                    letterSpacing: "0.5px",
+                <GradientSlider
+                  min={0}
+                  max={1}
+                  step={0.1}
+                  value={greenPreference}
+                  onChange={(_, value) => {
+                    if (typeof value === "number") {
+                      setGreenPreference(value);
+                    }
                   }}
-                >
-                  FASTER
-                </Typography>
+                  sx={{ p: 0 }}
+                />
 
-                <Typography
+                <Box
                   sx={{
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: "#00C853",
-                    letterSpacing: "0.5px",
+                    display: "flex",
+                    justifyContent: "space-between",
                   }}
                 >
-                  GREENER
-                </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: "#1E88E5",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    FASTER
+                  </Typography>
+
+                  <Typography
+                    sx={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: "#00C853",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    GREENER
+                  </Typography>
+                </Box>
               </Box>
             </Box>
           </Box>
-        </Box>
 
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <IconButton>
+          <IconButton onClick={handleClick}>
             <MenuIcon sx={{ color: "#fff" }} fontSize="large" />
           </IconButton>
-          <Button
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              color: "#fff",
-              textTransform: "none",
-            }}
-            onClick={handleLogout}
-          >
-            <LogoutIcon sx={{ mr: 1 }} fontSize="large" />
-          </Button>
         </Box>
-      </Box>
-    </Paper>
+      </Paper>
+
+      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+        <MenuItem
+          component={Link}
+          to="/"
+          onClick={() => window.location.reload()}
+        >
+          Home
+        </MenuItem>
+
+        <MenuItem component={Link} to="/history">
+          History
+        </MenuItem>
+        <MenuItem component={Link} to="/saved-routes">
+          Saved routes
+        </MenuItem>
+
+        <MenuItem onClick={handleLogout}>
+          <LogoutIcon sx={{ mr: 1 }} />
+          Logout
+        </MenuItem>
+      </Menu>
+    </>
   );
 };
 

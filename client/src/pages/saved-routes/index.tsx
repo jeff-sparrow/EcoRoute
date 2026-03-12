@@ -9,26 +9,22 @@ import {
   Typography,
 } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import { QUERY_KEYS } from "../../constants";
 import type { AxiosResponse } from "axios";
-import { getHistory } from "../../utils/api-services/location";
+import { getSavedRoutes } from "../../utils/api-services/location";
 import backendInstance from "../../utils/api-services/backendInstance";
+import { QUERY_KEYS } from "../../constants";
 import { getFromLocalStorage } from "../../utils/local-storage-service";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import DirectionsWalkIcon from "@mui/icons-material/DirectionsWalk";
-
+import DirectionsBikeIcon from "@mui/icons-material/DirectionsBike";
 import bgImage from "../../assets/ecoroute1.png";
 
 type Trip = {
   id: string;
-  trip_name: string;
   start_name: string;
   end_name: string;
   mode: string;
-  distance_km: string;
-  duration_minutes: number;
-  route_co2_kg: number;
-  carbon_saved_kg: number;
+  last_co2_score: string;
   created_at: string;
 };
 
@@ -38,17 +34,19 @@ const modeIcon = (mode: string) => {
       return <DirectionsCarIcon />;
     case "walk":
       return <DirectionsWalkIcon />;
+    case "bike":
+      return <DirectionsBikeIcon />;
     default:
       return null;
   }
 };
 
-export const History = () => {
+export const SavedRoutes = () => {
   const user = getFromLocalStorage("user");
-  const { data: trips, isFetching } = useQuery({
-    queryKey: [QUERY_KEYS.HISTORY],
+  const { data, isFetching } = useQuery({
+    queryKey: [QUERY_KEYS.SAVED_ROUTES],
     queryFn: async () => {
-      const response: AxiosResponse = await getHistory({
+      const response: AxiosResponse = await getSavedRoutes({
         api: backendInstance,
         url: `${user?.id}`,
       });
@@ -57,9 +55,9 @@ export const History = () => {
     enabled: !!user?.id,
   });
 
-  const totalCarbonSaved =
-    trips?.reduce(
-      (sum: number, trip: Trip) => sum + (trip.carbon_saved_kg || 0),
+  const totalCarbonScore =
+    data?.reduce(
+      (sum: number, trip: Trip) => sum + Number(trip.last_co2_score || 0),
       0,
     ) || 0;
 
@@ -82,6 +80,7 @@ export const History = () => {
         overflowY: "auto",
       }}
     >
+      {/* Summary Card */}
       <Card
         sx={{
           mb: 3,
@@ -93,52 +92,43 @@ export const History = () => {
       >
         <CardContent>
           <Typography fontSize={14} fontWeight={500}>
-            Total Carbon Saved
+            Total CO₂ Score
           </Typography>
 
           <Typography fontSize={32} fontWeight={700}>
-            {totalCarbonSaved.toFixed(3)} kg
+            {totalCarbonScore.toFixed(2)}
           </Typography>
         </CardContent>
       </Card>
+
       <Typography variant="h4" fontWeight={700} mb={3}>
-        Trip History
+        Saved Routes
       </Typography>
 
       <Grid container spacing={3}>
-        {trips?.map((trip: Trip) => (
+        {data?.map((trip: Trip) => (
           <Grid size={{ xs: 12, sm: 6, md: 4 }} key={trip.id}>
             <Card sx={{ borderRadius: 3, bgcolor: "#b2f3b2" }}>
               <CardContent>
+                {/* Route */}
                 <Typography variant="h6" fontWeight={600}>
-                  {trip.trip_name}
-                </Typography>
-
-                <Typography color="text.secondary" mb={2}>
                   {trip.start_name} → {trip.end_name}
                 </Typography>
 
-                <Stack direction="row" spacing={1} mb={2}>
-                  {trip.mode === "car" || trip.mode === "walk" ? (
-                    <Chip
-                      icon={modeIcon(trip.mode) || undefined}
-                      label={trip.mode.toUpperCase()}
-                    />
-                  ) : (
-                    <Chip label={trip.mode.toUpperCase()} />
-                  )}
-                  <Chip label={`${trip.distance_km} km`} />
-                  <Chip label={`${trip.duration_minutes} min`} />
+                {/* Mode */}
+                <Stack direction="row" spacing={1} mt={2} mb={2}>
+                  <Chip
+                    icon={modeIcon(trip.mode) || undefined}
+                    label={trip.mode.toUpperCase()}
+                  />
                 </Stack>
 
+                {/* CO2 Score */}
                 <Typography fontSize={14}>
-                  CO₂: <strong>{trip.route_co2_kg} kg</strong>
+                  CO₂ Score: <strong>{trip.last_co2_score}</strong>
                 </Typography>
 
-                <Typography fontSize={14}>
-                  Carbon Saved: <strong>{trip.carbon_saved_kg} kg</strong>
-                </Typography>
-
+                {/* Created Time */}
                 <Typography mt={2} fontSize={12} color="text.secondary">
                   Created: {new Date(trip.created_at).toLocaleString()}
                 </Typography>
@@ -151,4 +141,4 @@ export const History = () => {
   );
 };
 
-export default History;
+export default SavedRoutes;

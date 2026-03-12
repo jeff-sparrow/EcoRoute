@@ -1,4 +1,5 @@
 export const QUERY_KEYS = {
   SEARCH_LOCATION: "searchLocation",
-  HISTORY: "history"
+  HISTORY: "history",
+  SAVED_ROUTES: "savedRoutes"
 };

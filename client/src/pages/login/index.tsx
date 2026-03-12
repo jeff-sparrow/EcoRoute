@@ -8,7 +8,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import ecorouterLogo from "../../assets/ecorouteLogo.png";
 import LockIcon from "@mui/icons-material/Lock";
 import mobileImage from "../../assets/ecoroute1.png";
 import pegasus from "../../assets/ecoroute1.png";
@@ -19,14 +18,9 @@ import { VisibilityOffOutlined, VisibilityOutlined } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../constants/route-constant";
 import { keyframes } from "@mui/material/styles";
-import { axios } from "../../utils/api-services";
 import { getLoginService } from "../../utils/api-services/login";
 import { useMutation } from "@tanstack/react-query";
 import type { AxiosError, AxiosResponse } from "axios";
-import {
-  setInLocalStorage,
-  STORAGE_KEY,
-} from "../../utils/local-storage-service";
 import backendInstance from "../../utils/api-services/backendInstance";
 
 type LoginFormInputs = {

@@ -21,12 +21,13 @@ export interface ISegment {
 }
 
 export interface IRouteData {
-  mode: string;
-  score: number;
   coordinates: [number, number][];
+  segments: ISegment[];
+  mode: "walk" | "car" | "bike";
   distance_km: number;
   duration_min: number;
   carbon_kg: number;
   carbon_saved_kg: number;
-  segments: ISegment[];
+  tags: string[];
+  score: number;
 }
