@@ -17,7 +17,7 @@ The following functionality is currently operational:
 
 1. User enters start and destination coordinates.
 2. Frontend send POST request to the deployed backend:
-   https://ecoserver-3v5x.onrender.com/api/routes
+   https://ecoserver-3v5x.onrender.com
 3. Express backend processes the request.
 4. Backend returns route data including:
    - Transport mode
@@ -54,10 +54,10 @@ Empower daily commuters to reduce their personal carbon footprint from transport
 
 ## 2. Current Practice & Limitations
 
-Most people use Google Maps, Uber, or local bus apps that optimize for fastest or cheapest routes.  
+Most people use Google Maps, Uber, or local car apps that optimize for fastest or cheapest routes.  
 Current limitations:  
 - Carbon emissions are rarely shown or prioritized  
-- Multi-modal journeys (bus + walk + bike) are poorly combined  
+- Multi-modal journeys (car + walk + bike) are poorly combined  
 - No personalization for users who are willing to trade a few minutes for much lower emissions  
 - Weather/air quality rarely influences active transport suggestions (walking/biking)
 
@@ -365,10 +365,10 @@ Users should have internet access.
 User has a bike selected as an available option.
 There is no weather or condition impeding bike travel.
 - **Postconditions**
-Route displays the multi-modal route that includes bike and bus.
+Route displays the multi-modal route that includes bike and car.
 - **Steps to Follow (Success Scenario)**
-Start and destination is selected by the user that partially has a bus in the route.
-Green choices and a time that coincides with a bus is selected.
+Start and destination is selected by the user that partially has a car in the route.
+Green choices and a time that coincides with a car is selected.
 - **Extension**
 User selects conditions that creates a route that either only starts or ends with bicycling.
 - **Exceptions**
@@ -404,7 +404,155 @@ Routing data unavailable shows error message.
 4. **Offline Route Caching**  
    - Basic offline support for common trips
 
+---
 
+# 12. Source Distribution
 
+This repository contains the complete source code required to continue development of EcoRoute.
 
+The project is organized into the following major directories:
 
+```
+EcoRoute
+│
+├── client/        # React frontend application
+├── server/        # Node.js backend API
+├── docs/          # Developer and user documentation
+```
+
+---
+
+## Building the Project
+
+To build the frontend production version:
+
+```
+cd client
+npm install
+npm run build
+```
+
+Production files will be generated in:
+
+```
+client/dist
+```
+
+---
+
+## Running Tests
+
+EcoRoute uses **Vitest** and **React Testing Library** for automated testing.
+
+To run tests locally:
+
+```
+cd client
+npm run test
+```
+
+Tests include:
+
+* Component rendering tests
+* Loading state tests
+* Utility validation tests
+
+These tests also run automatically in the CI pipeline.
+
+---
+
+## Continuous Integration
+
+EcoRoute uses **GitHub Actions** for CI.
+
+The pipeline automatically runs when:
+
+* code is pushed to the `main` branch
+* a pull request is opened
+
+The CI pipeline performs:
+
+* dependency installation
+* automated tests
+* build validation
+
+Developers can view CI results in the **GitHub Actions** tab.
+
+---
+
+## Issue Tracking
+
+Project bugs and feature requests are tracked using **GitHub Issues**.
+
+When creating an issue include:
+
+* steps to reproduce
+* expected behavior
+* screenshots (if applicable)
+
+---
+
+## Contributing Workflow
+
+Typical developer workflow:
+
+```
+git checkout -b feature-name
+git commit -m "Add feature"
+git push origin feature-name
+```
+
+Create a Pull Request to merge into the `main` branch after code review.
+
+---
+
+## Documentation
+
+Additional documentation is available in the `docs` directory.
+
+User Guide:
+
+```
+docs/user-guide.md
+```
+
+Developer Guide:
+
+```
+docs/developer-guide.md
+```
+
+These documents describe how to use the system and how developers can extend it.
+
+# 13. Reflections
+### Tashfia Tabassum – Frontend
+
+- Importance of Modular UI Design
+
+On Development period I learned how important it is to design reusable and modular components. Separating UI components like route card, map elements and 
+forms. Which helps to maintain frontend more efficiently.
+
+- API Integration Challenges
+
+Connect frontend with Backend API which require careful handling for asynchronous requests and error states. Which helped a lot to understand better how React Query and Axious make API communication and caching much simple.
+
+- User Authentication
+
+Got real experience with user authentication while implanting the feature. The application includes login and registration to protects certain route and trip history.
+
+Through this project I faced lot's of issues and learned so much by solving those. Every small improvement like loading states, showing toast message when trip saved. are significantly improved user experience.
+
+### Grunwald Jae – Backend
+
+One of the biggest takeaways from EcoRoute was how difficult it is to turn a broad idea like
+“sustainability” into actual, working features. In the beginning, we had all these big ideas for
+low-impact travel, but quickly realized that unless you can translate that into specific data, like
+exact carbon offset or fuel efficiency metrics, it’s just a vague concept. I think our team worked
+pretty well; using a shared repo and keeping the lines of communication open meant there
+wasn’t a lot of confusion going on, which was a huge help.
+If I were to do this again, I would probably spend even more time on the initial data modeling for
+the different transport types. We hit our MVP goals, but spending a bit less time with secondary
+features like context-aware weather and more time stress-testing the core bike and car logic
+would have made the final stretch much easier. The project taught me that technical execution
+is only part of the equation, the real work is in the planning and making sure that everyone is on
+the same page about what “done” actually looks like for a core feature.

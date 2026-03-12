@@ -30,7 +30,9 @@ Supported browsers:
 No installation is required for normal users.
 
 ---
-
+## Login Credentials For Test
+- test@testmail.com
+- testpass
 # 3. Running the Application Locally
 
 Developers or advanced users may run the application locally.
