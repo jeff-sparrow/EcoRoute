@@ -35,18 +35,19 @@ The API still works without keys using fallback routing/weather assumptions.
 npm run dev
 ```
 
-Server default URL: `http://localhost:4000`
+Server default URL: `http://localhost:5000`
 
 ## Endpoints
 
-- `GET /api/health`
-- `POST /api/routes`
-- `POST /api/users`
-- `GET /api/users/:userId/dashboard`
-- `GET /api/users/:userId/saved-routes`
-- `POST /api/users/:userId/saved-routes`
-- `GET /api/users/:userId/trips`
-- `POST /api/users/:userId/trips`
+Auth
+    POST /api/register
+    POST /api/login
+Trips
+    POST /api/trip
+    GET  /api/trips/:userId
+Saved Routes
+    POST   /api/save-route
+    GET    /api/saved-routes/:userId
 
 ## How API integration works in this backend
 

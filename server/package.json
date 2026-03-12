@@ -1,26 +1,27 @@
 {
-  "name": "ecoroute-server",
+  "name": "server",
   "version": "1.0.0",
-  "description": "Backend API for EcoRoute low-carbon commute planner",
-  "type": "module",
-  "main": "src/index.js",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/index.js",
-    "start": "node src/index.js",
-    "lint": "node --check src/index.js",
-    "test": "vitest run"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
   "dependencies": {
-    "axios": "^1.13.2",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.3",
-    "express": "^5.1.0",
-    "morgan": "^1.10.1",
-    "pg": "^8.20.0",
-    "zod": "^4.1.12"
+    "axios": "^1.13.6",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "express-validator": "^7.3.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.19.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10",
-    "vitest": "^3.2.4"
+    "nodemon": "^3.1.14"
   }
 }
