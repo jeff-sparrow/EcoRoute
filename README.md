@@ -2,7 +2,7 @@
 **Team Members**  
 -  Tashfia Tabassum –  Frontend  
 -  Grunwald Jae – Backend & API Integration  
--  Aiden Kitchen – Data Processing & Carbon Calculations  
+-  Aiden Kitchen – Database Engineer & Backend Assistant
 -  Jeffrey Sparrow – UI/UX & Testing  
 ## Abstract (Executive Summary)
 EcoRoute is a web-based application that helps urban commuters in cities to find the most environmentally friendly way to travel by prioritizing the lowest carbon emissions while still considering time and cost. It combines public transit, walking, biking, and electric vehicle options using open routing APIs and simple personalization. Unlike Google Maps which focuses on speed, EcoRoute puts sustainability first and shows users exactly how much CO₂ they can save per trip — making green choices easy, visible, and rewarding.
@@ -17,7 +17,7 @@ The following functionality is currently operational:
 
 1. User enters start and destination coordinates.
 2. Frontend send POST request to the deployed backend:
-   https://ecoserver-3v5x.onrender.com
+   https://ecoserver-3v5x.onrender.com/
 3. Express backend processes the request.
 4. Backend returns route data including:
    - Transport mode
@@ -28,7 +28,10 @@ The following functionality is currently operational:
 
 
 ---
-
+Frontend Live : https://eco-client-sandy.vercel.app/
+## Test User Credentials
+- test@testmail.com
+- testpass
 ### How to Test the Beta Release
 
 1. Clone the repository:
@@ -54,10 +57,10 @@ Empower daily commuters to reduce their personal carbon footprint from transport
 
 ## 2. Current Practice & Limitations
 
-Most people use Google Maps, Uber, or local car apps that optimize for fastest or cheapest routes.  
+Most people use Google Maps, Uber, or local bus apps that optimize for fastest or cheapest routes.  
 Current limitations:  
 - Carbon emissions are rarely shown or prioritized  
-- Multi-modal journeys (car + walk + bike) are poorly combined  
+- Multi-modal journeys (bus + walk + bike) are poorly combined  
 - No personalization for users who are willing to trade a few minutes for much lower emissions  
 - Weather/air quality rarely influences active transport suggestions (walking/biking)
 
@@ -365,10 +368,10 @@ Users should have internet access.
 User has a bike selected as an available option.
 There is no weather or condition impeding bike travel.
 - **Postconditions**
-Route displays the multi-modal route that includes bike and car.
+Route displays the multi-modal route that includes bike and bus.
 - **Steps to Follow (Success Scenario)**
-Start and destination is selected by the user that partially has a car in the route.
-Green choices and a time that coincides with a car is selected.
+Start and destination is selected by the user that partially has a bus in the route.
+Green choices and a time that coincides with a bus is selected.
 - **Extension**
 User selects conditions that creates a route that either only starts or ends with bicycling.
 - **Exceptions**
@@ -552,7 +555,19 @@ pretty well; using a shared repo and keeping the lines of communication open mea
 wasn’t a lot of confusion going on, which was a huge help.
 If I were to do this again, I would probably spend even more time on the initial data modeling for
 the different transport types. We hit our MVP goals, but spending a bit less time with secondary
-features like context-aware weather and more time stress-testing the core bike and car logic
+features like context-aware weather and more time stress-testing the core bike and bus logic
 would have made the final stretch much easier. The project taught me that technical execution
 is only part of the equation, the real work is in the planning and making sure that everyone is on
 the same page about what “done” actually looks like for a core feature.
+
+### Aiden Kitchen - Database engineer, backend assistant developer
+
+Throughout the development of EcoRoute, I learned quite a few lessons:
+
+I learned to develop more slowly, with the entire project in mind. At first when developing, I would focus almost entirely on individual components, and I neglected to learn about unrelated ones (largely the frontend at first), which caused problems with the database integration and early bug fixes.
+
+I realized that communication may be the most important aspect of software engineering, be it in requirements elicitation, design, development, testing, maintenance or any other part. This connects to my previous point, but software engineering requires good communication with every person, from users to developers. If I were to go back to the start of the project, I would treat it as a job, and I would communicate with my teammates as such.
+
+Finally, I learned how to plan, use issue tracking and use version control. These were much more important for development than I had previously thought, and I wish that I had used concrete issue tracking and version control from the beginning; if we had, I believe that our project would have better achieved the vision that we initially had. The largest issues that arose for me were the inconsistencies between components of our software, and while all three of the lessons that I listed would have remedied that problem in some way, I believe that better planning, issue tracking and version control would have been the most effective.
+
+### Jeffrey Sparrow - UI/UX and Testing
